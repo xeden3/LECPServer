@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+
+<head>
+    <meta charset="utf-8" />
+    <title>HF2 Formation System Admin | User Login</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta content="Preview page of Metronic Admin Theme #1 for " name="description" />
+    <meta content="" name="author" />
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    <link href="../assets/global/css/css.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet"
+        type="text/css" />
+    <link href="../assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css" rel="stylesheet"
+        type="text/css" />
+    <!-- END GLOBAL MANDATORY STYLES -->
+    <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <link href="../assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <!-- END PAGE LEVEL PLUGINS -->
+    <!-- BEGIN THEME GLOBAL STYLES -->
+    <link href="../assets/global/css/components.min.css" rel="stylesheet" id="style_components" type="text/css" />
+    <link href="../assets/global/css/plugins.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/bootstrap-sweetalert/sweetalert.css" rel="stylesheet" type="text/css" />
+    <!-- END THEME GLOBAL STYLES -->
+    <!-- BEGIN PAGE LEVEL STYLES -->
+    <link href="../assets/pages/css/login.min.css" rel="stylesheet" type="text/css" />
+    <!-- END PAGE LEVEL STYLES -->
+    <!-- BEGIN THEME LAYOUT STYLES -->
+    <!-- END THEME LAYOUT STYLES -->
+    <link rel="shortcut icon" href="favicon.ico" />
+</head>
+<!-- END HEAD -->
+
+<body class=" login">
+    <!-- BEGIN LOGO -->
+    <div class="logo">
+        <a href="index.html">
+            <img src="../assets/pages/img/logo-big.png" alt="" /> </a>
+    </div>
+    <!-- END LOGO -->
+    <!-- BEGIN LOGIN -->
+    <div class="content">
+        <!-- BEGIN LOGIN FORM -->
+        <form class="login-form" action="#" method="post" name="login-form">
+            <h3 class="form-title font-green" data-i18n="page_login.sign_in">Sign In</h3>
+            <div class="alert alert-danger display-hide">
+                <button class="close" data-close="alert"></button>
+                <span data-i18n="page_login.enter_your_username_and_password"> Enter your username and password. </span>
+            </div>
+            <div class="form-group">
+                <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->
+                <label class="control-label visible-ie8 visible-ie9" data-i18n="page_login.username">Username</label>
+                <input class="form-control form-control-solid placeholder-no-fix" type="text" autocomplete="off"
+                    placeholder="Username" name="username" /> </div>
+            <div class="form-group">
+                <label class="control-label visible-ie8 visible-ie9" data-i18n="page_login.password">Password</label>
+                <input class="form-control form-control-solid placeholder-no-fix" type="password" autocomplete="off"
+                    placeholder="Password" name="password" /> </div>
+            <div class="form-actions">
+                <button type="submit" class="btn green uppercase" data-i18n="page_login.login">Login</button>
+            </div>
+            <!-- 
+                <div class="login-options">
+                    <h4>Or login with</h4>
+                    <ul class="social-icons">
+                        <li>
+                            <a class="social-icon-color facebook" data-original-title="facebook" href="javascript:;"></a>
+                        </li>
+                        <li>
+                            <a class="social-icon-color twitter" data-original-title="Twitter" href="javascript:;"></a>
+                        </li>
+                        <li>
+                            <a class="social-icon-color googleplus" data-original-title="Goole Plus" href="javascript:;"></a>
+                        </li>
+                        <li>
+                            <a class="social-icon-color linkedin" data-original-title="Linkedin" href="javascript:;"></a>
+                        </li>
+                    </ul>
+                </div>
+                -->
+            <div class="create-account">
+                <p>
+                    <a href="javascript:;" id="register-btn" class="uppercase" name="btn_windows_close" 
+                        data-i18n="page_login.exit_the_application">Exit the application</a>
+                </p>
+            </div>
+
+        </form>
+        <!-- END LOGIN FORM -->
+
+    </div>
+    <div class="copyright"> 2020 &copy; Leanboard. Admin Dashboard. </div>
+    <!--[if lt IE 9]>
+        <script src="../assets/global/plugins/respond.min.js"></script>
+        <script src="../assets/global/plugins/excanvas.min.js"></script> 
+        <script src="../assets/global/plugins/ie8.fix.min.js"></script> 
+        <![endif]-->
+    <!-- BEGIN CORE PLUGINS -->
+    <script src="../assets/global/plugins/jquery.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/js.cookie.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jquery.blockui.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/bootstrap-switch/js/bootstrap-switch.min.js" type="text/javascript"></script>
+    <!-- END CORE PLUGINS -->
+    <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <script src="../assets/global/plugins/jquery-validation/js/jquery.validate.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jquery-validation/js/additional-methods.min.js"
+        type="text/javascript"></script>
+    <script src="../assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/bootstrap-sweetalert/sweetalert.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/i18next/i18next.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/i18next/i18nextXHRBackend.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/i18next/loc-i18next.js" type="text/javascript"></script>
+    <!-- END PAGE LEVEL PLUGINS -->
+    <!-- BEGIN THEME GLOBAL SCRIPTS -->
+    <script src="../assets/global/scripts/app.min.js" type="text/javascript"></script>
+    <!-- END THEME GLOBAL SCRIPTS -->
+    <!-- BEGIN THEME LAYOUT SCRIPTS -->
+    <!-- END THEME LAYOUT SCRIPTS -->
+    <script>
+        // =======================================================================
+        // =======================================================================
+        // =====================  全局函数们  =====================================
+        // =======================================================================
+        // =======================================================================
+
+        var g_mes_data = null;
+
+        // 读取mes配置文件
+        function load_mes_conf() {
+            let s = JsProxyAPI.fileRead("./mes.conf");
+            if (s == "") {
+                alert("There are not mes.conf file");
+                return false;
+            }
+
+            try {
+                g_mes_data = JSON.parse(s);
+            } catch (e) {
+                alert("Incorrect format of mes.conf file:" + e);
+                return false;
+            }
+        }
+
+        function init_i18n() {
+            i18next.use(i18nextXHRBackend);
+            i18next.init({
+                lng: 'cn', //设置英文
+                debug: true,
+                backend: {
+                    loadPath: '../assets/locales/{{lng}}/{{ns}}.json'
+                }
+            }, function (err, t) {
+                let localize = locI18next.init(i18next);
+                localize('[data-i18n]');
+            });
+        }
+        
+        var Login = function () {
+            var e = function () {
+                $(".login-form").validate({
+                    errorElement: "span",
+                    errorClass: "help-block",
+                    focusInvalid: !1,
+                    rules: {
+                        username: {
+                            required: !0
+                        },
+                        password: {
+                            required: !0
+                        },
+                        remember: {
+                            required: !1
+                        }
+                    },
+                    messages: {
+                        username: {
+                            required: "Username is required."
+                        },
+                        password: {
+                            required: "Password is required."
+                        }
+                    },
+                    invalidHandler: function (e, r) {
+                        $(".alert-danger", $(".login-form")).show()
+                    },
+                    highlight: function (e) {
+                        $(e).closest(".form-group").addClass("has-error")
+                    },
+                    success: function (e) {
+                        e.closest(".form-group").removeClass("has-error"),
+                            e.remove()
+                    },
+                    errorPlacement: function (e, r) {
+                        e.insertAfter(r.closest(".input-icon"))
+                    },
+                    submitHandler: function (e) {
+                        //e.submit()
+                        //提交后需要处理的事情
+                        let username = $('[name="username"]').val();
+                        let password = $('[name="password"]').val();
+                        JsProxyAPI.loggerWrite("User login:[" + username + "]", "USER", "");
+                        if(window.localStorage)
+                            localStorage.username = username;
+                        window.location.href = "../page/home.html?username=" + username;
+                        // 先屏蔽登陆逻辑
+                        /*
+                        $.ajax({
+                            url: g_mes_data['URL'],
+                            data: JSON.stringify({ "action": "user_login", "param": { "user": username, "password": password } }),
+                            contentType: "application/json; charset=utf-8",
+                            type: 'POST',
+                            timeout: 2000,
+                            success: function (response) {
+                                let rt = JSON.parse(response);
+                                if (rt['errcode'] == 0) {
+                                    // 登陆成功
+                                    JsProxyAPI.loggerWrite("User login success:[" + username + "]", "USER", "");
+
+                                } else {
+                                    // 登陆失败，报警
+                                    JsProxyAPI.loggerWrite("User login failed:[" + username + "]" + rt['errmsg'] + "[" + rt['errcode'] + "]", "USER", "");
+                                    swal(
+                                        i18next.t('page_login.login_failed'),
+                                        rt['errmsg'] + "[" + rt['errcode'] + "]",
+                                        'error'
+                                    );
+                                }
+                            }, error: function (x, t, m) {
+                                // 登陆失败，报警
+                                JsProxyAPI.loggerWrite("User login failed:[" + username + "]" + t, "USER", "");
+                                swal(
+                                    i18next.t('page_login.login_failed'),
+                                    t,
+                                    'error'
+                                );
+                            }
+                        });
+                        */
+
+                        return false;
+                    }
+                }),
+                    $(".login-form input").keypress(function (e) {
+                        if (13 == e.which) return $(".login-form").validate().form() && $(".login-form").submit(),
+                            !1
+                    })
+            };
+            return {
+                init: function () {
+                    e()
+                }
+            }
+        }();
+        $(document).ready(function () {
+            load_mes_conf();
+            Login.init();
+            $('[name="btn_windows_close"]').on('click', function () {
+                JsProxyAPI.loggerWrite("System Close in Login Page", "USER", "");
+                JsProxyAPI.sendCommand("WindowClose");
+            });
+
+            init_i18n();
+        })
+    </script>
+    <!-- End -->
+</body>
+
+</html>

@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta content="Preview page of Metronic Admin Theme #1 for statistics, charts, recent events and reports"
+        name="description" />
+    <meta content="" name="author" />
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    <link href="../assets/global/css/css.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet"
+        type="text/css" />
+    <link href="../assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css" rel="stylesheet"
+        type="text/css" />
+    <!-- END GLOBAL MANDATORY STYLES -->
+    <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <link href="../assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.css" rel="stylesheet"
+        type="text/css" />
+    <link href="../assets/global/plugins/morris/morris.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/fullcalendar/fullcalendar.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/jqvmap/jqvmap/jqvmap.css" rel="stylesheet" type="text/css" />
+    <!-- END PAGE LEVEL PLUGINS -->
+    <!-- BEGIN THEME GLOBAL STYLES -->
+    <link href="../assets/global/css/components.min.css" rel="stylesheet" id="style_components" type="text/css" />
+    <link href="../assets/global/css/plugins.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet"
+        type="text/css" />
+    <link href="../assets/global/plugins/clockface/css/clockface.css" rel="stylesheet" type="text/css" />
+    <!-- END THEME GLOBAL STYLES -->
+    <!-- BEGIN THEME LAYOUT STYLES -->
+    <link href="../assets/layouts/layout/css/layout.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/layouts/layout/css/themes/grey.min.css" rel="stylesheet" type="text/css" id="style_color" />
+    <link href="../assets/layouts/layout/css/custom.min.css" rel="stylesheet" type="text/css" />
+    <!-- END THEME LAYOUT STYLES -->
+    <link rel="shortcut icon" href="favicon.ico" />
+    <link href="../assets/global/plugins/bootstrap-select/css/bootstrap-select.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/bootstrap-sweetalert/sweetalert.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/datatables/datatables.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="../assets/global/plugins/bootstrap-toastr/toastr.min.css">
+
+    <script src="../assets/global/flags/iconfont.js"></script>
+
+    <style>
+        .icon_flag {
+            width: 2em;
+            height: 2em;
+            vertical-align: -0.15em;
+            fill: currentColor;
+            overflow: hidden;
+        }
+
+        .selectable {
+            -moz-user-select: text;
+            -khtml-user-select: text;
+            -webkit-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        .noselect {
+            -webkit-touch-callout: none;
+            /* iOS Safari */
+            -webkit-user-select: none;
+            /* Chrome/Safari/Opera */
+            -khtml-user-select: none;
+            /* Konqueror */
+            -moz-user-select: none;
+            /* Firefox */
+            -ms-user-select: none;
+            /* Internet Explorer/Edge */
+            user-select: none;
+            /* Non-prefixed version, currently not supported by any browser */
+        }
+
+        body {
+            overflow-x: hidden;
+            overflow-y: visible;
+        }
+
+        .dt-background-color-gray {
+            background-color: #BFBFBF !important;
+        }
+
+        .dt-background-color-red {
+            background-color: #EB5041 !important;
+        }
+
+
+        .clearfix::after {
+            content: '';
+            clear: both;
+            display: block
+        }
+
+        /*滚动条样式*/
+        body::-webkit-scrollbar {
+            width: 4px;
+            /*height: 4px;*/
+        }
+
+        body::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        body::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+            border-radius: 0;
+            background: rgba(0, 0, 0, 0.1);
+
+        }
+
+
+
+        .table-sm {
+            font-family: verdana, arial, sans-serif;
+            font-size: 11px;
+            color: #333333;
+            border-width: 1px;
+            border-color: #666666;
+            border-collapse: collapse;
+        }
+
+        .table-sm th {
+            border-width: 1px;
+            padding: 3px;
+            border-style: solid;
+            border-color: #666666;
+            background-color: #dedede;
+        }
+
+        .table-sm td {
+            border-width: 1px;
+            padding: 3px;
+            border-style: solid;
+            border-color: #666666;
+            background-color: #ffffff;
+            white-space: nowrap;
+        }
+
+        .table-sm .form-control-sm {
+            width: 80px;
+        }
+
+        .table-sm .form-control-input-sm {
+            width: 70px;
+        }
+
+        .table-sm .form-control-input-mid .form-control-sm {
+            width: 100%;
+        }
+
+        .table-sm .form-control-input-sm input {
+            width: 70px;
+        }
+
+        .active {
+            background-color: #f3f3f3;
+            border-left: 2px solid #5b9bd1;
+        }
+
+        .span-offline {
+            background: #a1a1a1;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            padding: 5px 5px;
+            font-size: 16px;
+            position: absolute;
+        }
+
+        .span-online {
+            background: #61fa6d;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            padding: 5px 5px;
+            font-size: 16px;
+            position: absolute;
+        }
+    </style>
+
+</head>
+<!-- END HEAD -->
+
+<body class="noselect page-header-fixed page-sidebar-closed-hide-logo page-container-bg-solid page-content-white">
+    <div class="page-wrapper">
+        <!-- BEGIN HEADER -->
+        <div class="page-header navbar navbar-fixed-top">
+            <!-- BEGIN HEADER INNER -->
+            <div class="page-header-inner ">
+                <!-- BEGIN LOGO -->
+                <div class="page-logo">
+                    <a href="#">
+                        <img src="../assets/layouts/layout/img/logo.png" alt="logo" class="logo-default" /> </a>
+                    <div class="menu-toggler sidebar-toggler">
+                        <span></span>
+                    </div>
+                </div>
+                <!-- END LOGO -->
+                <!-- BEGIN RESPONSIVE MENU TOGGLER -->
+                <a href="javascript:;" class="menu-toggler responsive-toggler" data-toggle="collapse"
+                    data-target=".navbar-collapse">
+                    <span></span>
+                </a>
+                <!-- END RESPONSIVE MENU TOGGLER -->
+                <!-- BEGIN TOP NAVIGATION MENU -->
+                <div class="top-menu">
+                    <ul class="nav navbar-nav pull-right">
+                        <!-- BEGIN USER LOGIN DROPDOWN -->
+                        <!-- DOC: Apply "dropdown-dark" class after below "dropdown-extended" to change the dropdown styte -->
+                        <li class="dropdown dropdown-user">
+                            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown"
+                                data-close-others="true" data-target="user_avatar">
+                                <img alt="" class="img-circle" src="../assets/layouts/layout/img/avatar3_small.jpg" />
+                                <span class="username username-hide-on-mobile" name="lb_user_login"> ---- </span>
+                                <i class="fa fa-angle-down"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-default">
+                                <!--
+                                <li>
+                                    <a href="page_user_profile_1.html">
+                                        <i class="icon-user"></i> My Profile </a>
+                                </li>
+                                <li>
+                                    <a href="app_calendar.html">
+                                        <i class="icon-calendar"></i> My Calendar </a>
+                                </li>
+                                <li>
+                                    <a href="app_inbox.html">
+                                        <i class="icon-envelope-open"></i> My Inbox
+                                        <span class="badge badge-danger"> 3 </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="app_todo.html">
+                                        <i class="icon-rocket"></i> My Tasks
+                                        <span class="badge badge-success"> 7 </span>
+                                    </a>
+                                </li>
+                                <li class="divider"> </li>
+                                -->
+                                <li>
+                                    <a href="#" data-target="activate">
+                                        <i class="icon-lock"></i> <span data-i18n="page_left_menu.activate"> Activate
+                                        </span></a>
+                                </li>
+                                <li>
+                                    <a href="#" data-target="language">
+                                        <i class="fa fa-language"></i> <span data-i18n="page_left_menu.language"> Language
+                                        </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" data-target="about">
+                                        <i class="icon-key"></i> <span data-i18n="page_left_menu.about"> About </span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <!--
+                        <li class="dropdown dropdown-user">
+                            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" data-target="user_avatar">
+                                <img alt="" class="img-circle" src="../assets/layouts/layout/img/avatar3_small.jpg" />
+                                <span class="username username-hide-on-mobile" name="lb_user_login"> ---- </span>
+                                <i class="fa fa-angle-down"></i>
+                            </a>
+                        </li>
+                        -->
+                        <!-- END USER LOGIN DROPDOWN -->
+                        <!-- BEGIN QUICK SIDEBAR TOGGLER -->
+                        <!-- DOC: Apply "dropdown-dark" class after below "dropdown-extended" to change the dropdown styte -->
+                        <!--
+                        <li class="dropdown dropdown-quick-sidebar-toggler">
+                            <a href="javascript:;" class="dropdown-toggle" data-target="logout">
+                                <i class="icon-logout"></i>
+                            </a>
+                        </li>
+                        -->
+                        <li class="dropdown">
+                            <a href="javascript:;" class="dropdown-toggle" data-target="win_min">
+                                <i class="fa fa-minus"></i>
+                            </a>
+                        </li>
+                        <li class="dropdown">
+                            <a href="javascript:;" class="dropdown-toggle" data-target="win_close">
+                                <i class="fa fa-close"></i>
+                            </a>
+                        </li>
+                        <!-- END QUICK SIDEBAR TOGGLER -->
+                    </ul>
+                </div>
+                <!-- END TOP NAVIGATION MENU -->
+            </div>
+            <!-- END HEADER INNER -->
+        </div>
+        <!-- END HEADER -->
+        <!-- BEGIN HEADER & CONTENT DIVIDER -->
+        <div class="clearfix"> </div>
+        <!-- END HEADER & CONTENT DIVIDER -->
+        <!-- BEGIN CONTAINER -->
+        <div class="page-container">
+            <!-- BEGIN SIDEBAR -->
+            <div class="page-sidebar-wrapper">
+                <!-- BEGIN SIDEBAR -->
+                <!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
+                <!-- DOC: Change data-auto-speed="200" to adjust the sub menu slide up/down speed -->
+                <div class="page-sidebar navbar-collapse collapse">
+                    <!-- BEGIN SIDEBAR MENU -->
+                    <!-- DOC: Apply "page-sidebar-menu-light" class right after "page-sidebar-menu" to enable light sidebar menu style(without borders) -->
+                    <!-- DOC: Apply "page-sidebar-menu-hover-submenu" class right after "page-sidebar-menu" to enable hoverable(hover vs accordion) sub menu mode -->
+                    <!-- DOC: Apply "page-sidebar-menu-closed" class right after "page-sidebar-menu" to collapse("page-sidebar-closed" class must be applied to the body element) the sidebar sub menu mode -->
+                    <!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
+                    <!-- DOC: Set data-keep-expand="true" to keep the submenues expanded -->
+                    <!-- DOC: Set data-auto-speed="200" to adjust the sub menu slide up/down speed -->
+                    <ul class="page-sidebar-menu  page-header-fixed page-sidebar-menu-light " data-keep-expanded="false"
+                        data-auto-scroll="true" data-slide-speed="200" style="padding-top: 20px" name="page_left_menu">
+                        <!-- DOC: To remove the sidebar toggler from the sidebar you just need to completely remove the below "sidebar-toggler-wrapper" LI element -->
+                        <!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+                        <li class="sidebar-toggler-wrapper hide">
+                            <div class="sidebar-toggler">
+                                <span></span>
+                            </div>
+                        </li>
+                        <!-- END SIDEBAR TOGGLER BUTTON -->
+                        <!-- DOC: To remove the search box from the sidebar you just need to completely remove the below "sidebar-search-wrapper" LI element -->
+
+                        <li class="sidebar-search-wrapper">
+                            <!-- BEGIN RESPONSIVE QUICK SEARCH FORM -->
+                            <!-- DOC: Apply "sidebar-search-bordered" class the below search form to have bordered search box -->
+                            <!-- DOC: Apply "sidebar-search-bordered sidebar-search-solid" class the below search form to have bordered & solid search box -->
+                            <!--
+                                <form class="sidebar-search  " action="http://keenthemes.com/preview/metronic/theme/admin_1/page_general_search_3.html" method="POST">
+                                    <a href="javascript:;" class="remove">
+                                        <i class="icon-close"></i>
+                                    </a>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="Search...">
+                                        <span class="input-group-btn">
+                                            <a href="javascript:;" class="btn submit">
+                                                <i class="icon-magnifier"></i>
+                                            </a>
+                                        </span>
+                                    </div>
+                                </form>
+                                -->
+                            <!-- END RESPONSIVE QUICK SEARCH FORM -->
+                        </li>
+
+                        <li class="heading">
+                            <h3 class="uppercase" data-i18n="page_left_menu.base">BASE</h3>
+                        </li>
+                        <li class="nav-item">
+                            <a href="javascript:;" class="nav-link nav-toggle" data-target="dashboard">
+                                <i class="fa fa-tv"></i>
+                                <span class="title" data-i18n="page_left_menu.dashboard">Dashboard</span>
+                            </a>
+                        </li>
+
+                        <li class="heading">
+                            <h3 class="uppercase" data-i18n="page_left_menu.system">System</h3>
+                        </li>
+                        <li class="nav-item">
+                            <a href="javascript:;" class="nav-link nav-toggle" data-target="http_debugger">
+                                <i class="icon-docs"></i>
+                                <span class="title" data-i18n="page_left_menu.http_debugger">HTTP Debugger</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="javascript:;" class="nav-link nav-toggle" data-target="log">
+                                <i class="icon-docs"></i>
+                                <span class="title" data-i18n="page_left_menu.log">Log</span>
+                            </a>
+                        </li>
+                        <!--
+                        <li class="nav-item">
+                            <a href="javascript:;" class="nav-link nav-toggle" data-target="mes_interface">
+                                <i class="icon-social-dribbble"></i>
+                                <span class="title" data-i18n="page_left_menu.mes_interface">MES Interface</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="javascript:;" class="nav-link nav-toggle" data-target="ip_setting">
+                                <i class="fa fa-cogs"></i>
+                                <span class="title" data-i18n="page_left_menu.ip_setting">IP SETTING</span>
+                            </a>
+                        </li>
+                        -->
+                    </ul>
+                    <!-- END SIDEBAR MENU -->
+                    <!-- END SIDEBAR MENU -->
+                </div>
+                <!-- END SIDEBAR -->
+            </div>
+            <!-- END SIDEBAR -->
+            <!-- BEGIN CONTENT -->
+            <div class="page-content-wrapper">
+                <!-- BEGIN CONTENT BODY -->
+                <div class="page-content" id="mod_body">
+                </div>
+                <!-- END CONTENT BODY -->
+            </div>
+            <!-- END CONTENT -->
+            <!-- BEGIN QUICK SIDEBAR -->
+            <!-- END QUICK SIDEBAR -->
+        </div>
+        <!-- END CONTAINER -->
+        <!-- BEGIN FOOTER -->
+        <div class="page-footer">
+            <div class="page-footer-inner" name="lb_version"> 2020 &copy; LECPServer By Leanboard Tech Ltd &nbsp;|&nbsp;
+                <!--<a href="http://www.leanboard.org" title="" target="_blank">www.leanboard.org</a>-->
+            </div>
+            <div class="scroll-to-top">
+                <i class="icon-arrow-up"></i>
+            </div>
+        </div>
+        <!-- END FOOTER -->
+    </div>
+    <!-- BEGIN QUICK NAV -->
+    <!--
+        <nav class="quick-nav">
+            <a class="quick-nav-trigger" href="#0">
+                <span aria-hidden="true"></span>
+            </a>
+            <ul>
+                <li>
+                    <a href="https://themeforest.net/item/metronic-responsive-admin-dashboard-template/4021469?ref=keenthemes" target="_blank" class="active">
+                        <span>Purchase Metronic</span>
+                        <i class="icon-basket"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://themeforest.net/item/metronic-responsive-admin-dashboard-template/reviews/4021469?ref=keenthemes" target="_blank">
+                        <span>Customer Reviews</span>
+                        <i class="icon-users"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="http://keenthemes.com/showcast/" target="_blank">
+                        <span>Showcase</span>
+                        <i class="icon-user"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="http://keenthemes.com/metronic-theme/changelog/" target="_blank">
+                        <span>Changelog</span>
+                        <i class="icon-graph"></i>
+                    </a>
+                </li>
+            </ul>
+            <span aria-hidden="true" class="quick-nav-bg"></span>
+        </nav>
+        -->
+    <div class="quick-nav-overlay"></div>
+    <!-- END QUICK NAV -->
+    <!--[if lt IE 9]>
+        <script src="../assets/global/plugins/respond.min.js"></script>
+        <script src="../assets/global/plugins/excanvas.min.js"></script> 
+        <script src="../assets/global/plugins/ie8.fix.min.js"></script> 
+        <![endif]-->
+    <!-- BEGIN CORE PLUGINS -->
+    <script src="../assets/global/plugins/jquery.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/js.cookie.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jquery.blockui.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/bootstrap-switch/js/bootstrap-switch.min.js" type="text/javascript"></script>
+    <!-- END CORE PLUGINS -->
+    <!-- BEGIN THEME GLOBAL SCRIPTS -->
+    <script src="../assets/global/scripts/app.min.js" type="text/javascript"></script>
+    <!-- END THEME GLOBAL SCRIPTS -->
+    <!-- BEGIN THEME LAYOUT SCRIPTS -->
+    <script src="../assets/layouts/layout/scripts/layout.min.js" type="text/javascript"></script>
+    <script src="../assets/layouts/layout/scripts/demo.min.js" type="text/javascript"></script>
+    <script src="../assets/layouts/global/scripts/quick-sidebar.min.js" type="text/javascript"></script>
+    <script src="../assets/layouts/global/scripts/quick-nav.min.js" type="text/javascript"></script>
+    <!-- END THEME LAYOUT SCRIPTS -->
+    <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <script src="../assets/global/plugins/moment.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.js"
+        type="text/javascript"></script>
+    <script src="../assets/global/plugins/morris/morris.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/morris/raphael-min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/counterup/jquery.waypoints.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/counterup/jquery.counterup.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/amcharts/amcharts.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/amcharts/serial.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/amcharts/pie.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/amcharts/radar.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/amcharts/themes/light.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/amcharts/themes/patterns.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/amcharts/themes/chalk.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/ammap/ammap.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/ammap/maps/js/worldLow.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/amstockcharts/amstock.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/fullcalendar/fullcalendar.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/horizontal-timeline/horizontal-timeline.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/flot/jquery.flot.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/flot/jquery.flot.resize.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/flot/jquery.flot.categories.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jquery-easypiechart/jquery.easypiechart.min.js"
+        type="text/javascript"></script>
+    <script src="../assets/global/plugins/jquery.sparkline.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jqvmap/jqvmap/jquery.vmap.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jqvmap/jqvmap/maps/jquery.vmap.russia.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jqvmap/jqvmap/maps/jquery.vmap.world.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jqvmap/jqvmap/maps/jquery.vmap.europe.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jqvmap/jqvmap/maps/jquery.vmap.germany.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jqvmap/jqvmap/maps/jquery.vmap.usa.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jqvmap/jqvmap/data/jquery.vmap.sampledata.js" type="text/javascript"></script>
+    <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <script src="../assets/global/plugins/moment.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.js"
+        type="text/javascript"></script>
+    <script src="../assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js"
+        type="text/javascript"></script>
+    <script src="../assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js"
+        type="text/javascript"></script>
+    <script src="../assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"
+        type="text/javascript"></script>
+    <script src="../assets/global/plugins/clockface/js/clockface.js" type="text/javascript"></script>
+    <!-- END PAGE LEVEL PLUGINS -->
+    <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <script src="../assets/global/plugins/bootstrap-sweetalert/sweetalert.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="../assets/pages/scripts/components-bootstrap-switch.min.js" type="text/javascript"></script>
+    <!-- END PAGE LEVEL PLUGINS -->
+
+    <script src="../assets/global/plugins/i18next/i18next.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/i18next/i18nextXHRBackend.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/i18next/loc-i18next.js" type="text/javascript"></script>
+    <!-- END PAGE LEVEL PLUGINS -->
+
+    <script src="../assets/global/plugins/bootstrap-toastr/toastr.min.js"></script>
+    <!-- AppendGrid组件 -->
+    <script src="../assets/global/plugins/appendgrid/AppendGrid.js" type="text/javascript"></script>
+
+    <script>
+        $(document).ready(function () {
+            // 授权部分代码
+            var g_authorization_code = "";
+            var g_authorization_type = "None";
+            // 读取 authorization.conf 授权文档
+            function load_authorization_file() {
+                let s = JsProxyAPI.fileRead("./authorization.conf");
+                if (s == "") {
+                    // alert("authorization.conf " + i18next.t('main.does_not_exist'));
+                    return false;
+                }
+                try {
+                    g_authorization_code = s;
+                    return true;
+                } catch (e) {
+                    alert(i18next.t('main.incorrect_format_of_file') + " authorization.conf:" + e);
+                    return false;
+                }
+            }
+            function save_authorization_file() {
+                JsProxyAPI.fileWrite("authorization.conf", g_authorization_code);
+            }
+            load_authorization_file();
+
+            if (g_authorization_code != "") {
+                let rt = JsProxyAPI.setAuthorizationCode(g_authorization_code);
+                if (rt == true) {
+                    g_authorization_type = JsProxyAPI.getAuthorizationType();
+                }
+            }
+            // ===== 授权代码结束 ======
+
+            // 初始化 i18n 配置
+            function init_i18n() {
+                lng = "";
+                if (window.localStorage)
+                    lng = localStorage["lng"];
+                if (typeof (lng) == "undefined"){
+                    lng = "cn";
+                }
+                if (lng == ""){
+                    lng = "cn";
+                }
+                i18next.use(i18nextXHRBackend);
+                i18next.init({
+                    lng: lng, //设置英文
+                    debug: true,
+                    load: 'all',
+                    backend: {
+                        loadPath: '../assets/locales/{{lng}}/{{ns}}.json'
+                    }
+                }, function (err, t) {
+                    let localize = locI18next.init(i18next);
+                    localize('[data-i18n]');
+                });
+            }
+            init_i18n();
+            // JsProxyAPI.sendCommand("DevDlgOpen");
+            $.getScript('../global/main.js', function () {
+                if (window.localStorage)
+                    g_user_login = localStorage["username"];
+
+                if (typeof (g_user_login) != "undefined")
+                    $('[name="lb_user_login"]').html(g_user_login);
+                // 开机日志
+                JsProxyAPI.loggerWrite("System Start", "SYS", g_user_login);
+                let user_avatar_click_count = 0;
+
+                // 将所有页面都载入，并且均隐藏
+                let page_count = 0;
+                $('[name="page_left_menu"] a').each(function () {
+                    let t = $(this).attr("data-target");
+                    let li = $(this).parent();
+                    if (typeof (t) != "undefined") {
+                        $.get("../modules/" + t + ".html", function (result) {
+                            $("#mod_body").append(result);
+                            $.getScript('../modules/' + t + '.js');
+                            // 界面上刷新当前选择的选项框
+                            if (page_count > 0) {
+                                $("#mod_body").find('[name="main_page_' + t + '"]').hide();
+                            } else {
+                                li.addClass("active open");
+                            }
+                            li = null;
+                            page_count++;
+                            let localize = locI18next.init(i18next);
+                            localize('[data-i18n]');
+                        });
+                    }
+                    console.log(t);
+                });
+
+                $('.top-menu a').on('click', function () {
+                    let t = $(this).attr("data-target");
+                    if (typeof (t) == "undefined")
+                        return;
+                    switch (t) {
+                        case "logout":
+                            //alert("logout");
+                            swal({
+                                title: i18next.t('alert.sure_to_logout'),
+                                text: i18next.t('alert.the_device_will_stop_after_you_logout'),
+                                type: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                cancelButtonText: i18next.t('alert.cancel'),
+                                confirmButtonText: i18next.t('alert.logout'),
+                            }, function () {
+                                JsProxyAPI.loggerWrite("System Logout", "USER", g_user_login);
+                                g_user_login = "";
+                                window.location.href = "../page/user_login.html";
+                            });
+
+                            break;
+                        case "win_min":
+                            JsProxyAPI.loggerWrite("Window Min", "USER", g_user_login);
+                            JsProxyAPI.sendCommand("WindowMin");
+                            // JsProxyAPI.sendCommand("WindowMinToTray");
+                            break;
+                        case "win_close":
+                            swal({
+                                title: i18next.t('alert.are_you_sure'),
+                                text: i18next.t('alert.your_will_be_able_to_close_this_application'),
+                                type: "warning",
+                                showCancelButton: true,
+                                confirmButtonClass: "btn-danger",
+                                confirmButtonText: i18next.t('alert.yes_close_it'),
+                                cancelButtonText: i18next.t('alert.cancel'),
+                                closeOnConfirm: false
+                            }, function () {
+                                // 关闭 plc socket
+                                plc_close_all();
+                                close_db(g_handler_db);
+                                JsProxyAPI.loggerWrite("System Close", "USER", g_user_login);
+                                JsProxyAPI.sendCommand("WindowClose");
+                            });
+                            break;
+                        case "user_avatar":
+                            user_avatar_click_count++;
+                            if (user_avatar_click_count > 10) {
+                                JsProxyAPI.loggerWrite("DevDlgOpen", "USER", g_user_login);
+                                JsProxyAPI.sendCommand("DevDlgOpen");
+                                user_avatar_click_count = 0;
+                            }
+                            break;
+                        case "activate":
+                            // alert("activate");
+                            swal({
+                                title: i18next.t('main.activate'),
+                                text: i18next.t('main.activate_msg_01') + g_authorization_type + i18next.t('main.activate_msg_02') + "<div class='selectable' style='width:100%;padding:6px 12px 6px 12px;border-color: #bfbfbf;border-style: dashed;border-width: 1px;'>" + JsProxyAPI.getAuthorizationId() + "</div>" + i18next.t('main.activate_msg_03'),
+                                type: "input",
+                                html: true,
+                                showCancelButton: true,
+                                closeOnConfirm: false,
+                                inputPlaceholder: "",
+                                confirmButtonText: i18next.t('main.active'),
+                                cancelButtonText: i18next.t('main.cancel'),
+                                inputValue: g_authorization_code
+                            }, async function (inputValue) {
+                                if (inputValue === false) return false;
+                                if (inputValue === "") {
+                                    return false
+                                }
+                                g_authorization_code = inputValue;
+
+                                if (g_authorization_code != "") {
+                                    let rt = JsProxyAPI.setAuthorizationCode(g_authorization_code);
+                                    if (rt == true) {
+                                        g_authorization_type = JsProxyAPI.getAuthorizationType();
+                                        swal(i18next.t('main.authorization_successful'), i18next.t('main.authorization_successful_msg') + g_authorization_type, "success");
+                                    } else {
+                                        swal.showInputError(i18next.t('main.authorization_failure'));
+                                    }
+                                }
+                                save_authorization_file();
+                            });
+                            break;
+
+                        case "language":
+                            // 修改和切换语言
+                            swal({
+                                title: i18next.t('main.language'),
+                                text: '<a href="javascript:;" class="btn btn-lg default" name="btn_lng_change" data-tag="cn"><svg class="icon_flag" aria-hidden="true"> <use xlink:href="#icon-china"></use></svg></a> <a href="javascript:;" class="btn btn-lg default" name="btn_lng_change" data-tag="en"><svg class="icon_flag" aria-hidden="true"> <use xlink:href="#icon-english"></use></svg></a> <a href="javascript:;" class="btn btn-lg default" name="btn_lng_change" data-tag="jp"><svg class="icon_flag" aria-hidden="true"> <use xlink:href="#icon-japan"></use></svg></a>',
+                                html: true,
+                                showCancelButton: true,
+                                showConfirmButton: false,
+                                closeOnConfirm: false,
+                                cancelButtonText: i18next.t('main.close'),
+                            }, function (inputValue) {
+                            });
+                            break;
+
+                        case "about":
+                            alert("LECPServer is just a smart middle-server between PLC and other equipment");
+                            break;
+                    }
+
+                });
+
+                // 点击语言转换按键
+                $(document).on('click', '[name="btn_lng_change"]', function () {
+                    let lng = $(this).attr("data-tag");
+                    i18next.changeLanguage(lng, (err, t) => {
+                        if (err) return console.log('something went wrong loading', err);
+                        let localize = locI18next.init(i18next);
+                        localize('[data-i18n]');
+                        // 重新导入apg的appendgrid
+                        init_apg_dashboard();
+                        if (window.localStorage) localStorage["lng"] = lng;
+
+                    });
+                });
+
+                // 左菜单栏点击事件
+                $('[name="page_left_menu"] a').on('click', function () {
+                    let t = $(this).attr("data-target");
+                    if (typeof (t) == "undefined")
+                        return;
+
+                    // 初始化所有选项框
+                    $('[name="page_left_menu"] li').each(function () {
+                        $(this).removeClass("active open");
+                    });
+                    $('[name="page_left_menu"] .sub-menu').each(function () {
+                        $(this).attr("style", "display: none;");
+                    });
+                    $('[name="page_left_menu"] span').each(function () {
+                        $(this).removeClass("open");
+                    });
+
+                    // 界面上刷新当前选择的选项框
+                    $(this).parent().addClass("active open");
+                    if ($(this).parent().parent().parent().prop("tagName") == "LI") {
+                        $(this).parent().parent().parent().addClass("active open");
+                        $(this).parent().parent().attr("style", "display: block;");
+                        $(this).parent().parent().parent().find('.arrow').addClass("open");
+                    }
+
+                    // 菜单导航
+                    JsProxyAPI.loggerWrite("Tab Open " + t, "USER", g_user_login);
+                    $("#mod_body").find('[name^="main_page"]').hide();
+                    $("#mod_body").find('[name="main_page_' + t + '"]').show();
+                    /*
+                    $.get("../modules/" + t + ".html", function (result) {
+                        $("#mod_body").html(result);
+                        $.getScript('../modules/' + t + '.js');
+                    });
+                    */
+                });
+            });
+
+        })
+    </script>
+</body>
+
+</html>

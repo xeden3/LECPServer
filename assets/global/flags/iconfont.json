@@ -1,0 +1,30 @@
+{
+  "id": "",
+  "name": "",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "8468795",
+      "name": "japan",
+      "font_class": "japan",
+      "unicode": "e6b8",
+      "unicode_decimal": 59064
+    },
+    {
+      "icon_id": "8576963",
+      "name": "china",
+      "font_class": "china",
+      "unicode": "e63b",
+      "unicode_decimal": 58939
+    },
+    {
+      "icon_id": "11500880",
+      "name": "english",
+      "font_class": "english",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    }
+  ]
+}

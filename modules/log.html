@@ -1,0 +1,69 @@
+<!-- BEGIN PAGE HEADER-->
+<!-- BEGIN PAGE BAR -->
+<!--
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+        </li>
+        <li>
+            <span></span>
+        </li>
+    </ul>
+</div>
+-->
+<!-- END PAGE BAR -->
+<!-- BEGIN PAGE TITLE-->
+<div name="main_page_log">
+    <h1 class="page-title"><span data-i18n="page_log.title">Log Page</span>
+        <small><span data-i18n="page_log.subtitle">for system and operation log</span></small>
+    </h1>
+    <!-- END PAGE TITLE-->
+    <!-- END PAGE HEADER-->
+    <div class="row">
+        <div class="col-md-12">
+            <!-- BEGIN EXAMPLE TABLE PORTLET-->
+            <div class="portlet light bordered">
+                <div class="portlet-title">
+                    <div class="caption font-dark">
+                        <i class="icon-settings font-dark"></i>
+                        <span class="caption-subject bold uppercase" data-i18n="page_log.log">Log</span>
+                    </div>
+                    <div class="tools"> </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-2" data-i18n="page_log.using_filter">Using Filter</label>
+                    <div class="col-md-10">
+                        <div class="col-md-3 margin-bottom-20">
+                            <div class="col-md-3" data-i18n="page_log.type">
+                                Type
+                            </div>
+                            <div class="col-md-4">
+                                <select class="bs-select form-control input-small" data-style="btn-primary" name="page_log_selector_type">
+                                    <option value="ALL" data-i18n="page_log.all">All</option>
+                                    <option value="SYS" data-i18n="page_log.system">System</option>
+                                    <option value="USER" data-i18n="page_log.user">User</option>
+                                    <option value="COMM" data-i18n="page_log.comm">Comm</option>
+                                    <option value="ENTRY" data-i18n="page_log.entry_process">Entry Process</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <table id="dt_log" class="display nowrap" stylClasse="width:100%">
+                        <thead>
+                            <tr>
+                                <th data-i18n="page_log.datetime">Datetime</th>
+                                <th data-i18n="page_log.class">Class</th>
+                                <th data-i18n="page_log.type">Type</th>
+                                <th data-i18n="page_log.user">User</th>
+                                <th data-i18n="page_log.message">Message</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

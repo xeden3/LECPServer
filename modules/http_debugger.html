@@ -1,0 +1,77 @@
+<!-- END PAGE BAR -->
+<!-- BEGIN PAGE TITLE-->
+<div name="main_page_http_debugger">
+    <h1 class="page-title"><span data-i18n="page_http_debugger.title">HTTP Debugger Page</span>
+        <small><span data-i18n="page_http_debugger.subtitle">for LECPServer WebApi debug</span></small>
+    </h1>
+    <!-- END PAGE TITLE-->
+    <!-- END PAGE HEADER-->
+    <div class="row">
+        <div class="col-md-12">
+            <!-- BEGIN EXAMPLE TABLE PORTLET-->
+            <div class="portlet light bordered">
+                <div class="portlet-title">
+                    <div class="caption font-dark">
+                        <i class="icon-settings font-dark"></i>
+                        <span class="caption-subject bold uppercase"
+                            data-i18n="page_http_debugger.debugger">Debugger</span>
+                    </div>
+                    <div class="tools"> </div>
+                </div>
+                <div class="portlet-body form">
+                    <form class="form-horizontal" role="form">
+                        <div class="form-body">
+
+                            <div class="form-group">
+                                <label class="col-md-3 control-label">URL</label>
+                                <div class="col-md-9">
+                                    <div class="input-icon">
+                                        <i class="fa fa-bell-o"></i>
+                                        <input type="text" class="form-control" placeholder="URL"
+                                            value="http://127.0.0.1:8088" name="input_page_http_debugger_url">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-3 control-label"
+                                    data-i18n="page_http_debugger.history">History</label>
+                                <div class="col-md-9">
+                                    <select class="form-control" name="sel_page_http_debugger_history">
+                                        <!--
+                                        <option>Option 1</option>
+                                        <option>Option 2</option>
+                                        <option>Option 3</option>
+                                        <option>Option 4</option>
+                                        <option>Option 5</option>
+                                        -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-3 control-label" data-i18n="page_http_debugger.body_send">Body
+                                    Send</label>
+                                <div class="col-md-9">
+                                    <textarea class="form-control" rows="7" name="input_page_http_debugger_body_send"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-offset-11 col-md-9">
+                                <button type="button" class="btn green" data-i18n="page_http_debugger.send" name="btn_page_http_debugger_send">Send</button>
+                            </div>
+                        </div>
+                        <div class="form-body">
+                            <div class="form-group">
+                                <label class="col-md-3 control-label"
+                                    data-i18n="page_http_debugger.response">Response</label>
+                                <div class="col-md-9">
+                                    <textarea class="form-control" rows="7" disabled="disable" name="input_page_http_debugger_response"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -17,6 +17,14 @@ Source code: https://github.com/xeden3/LECPServer
 
 Bug reports: https://github.com/xeden3/LECPServer/issues
 
+Download: https://github.com/xeden3/LECPServer/releases/
+
+## 样例视频
+> LECPServer连接并控制施耐德M200系列PLC [第一章] https://www.bilibili.com/video/BV1bK4y1Q7o8
+
+> LECPServer连接并控制施耐德M200系列PLC [第二章] https://www.bilibili.com/video/BV1yA411T71C
+
+
 ## LECPServer 环境要求
 
 操作系统：
@@ -46,6 +54,10 @@ LECPServer目前是基于 JLean v2.2.x 版本开发，而JLean v2.2.x版本需�
 > Microsoft .NET Framework 4.6.1 https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net461-web-installer
 
 > Visual C++ Redistributable Packages for Visual Studio 2013 https://www.microsoft.com/zh-cn/download/details.aspx?id=40784
+
+## 使用方法
+1. 解压zip文件到文件夹
+2. 双击启动 LECPServer.exe 即可
 
 ## 用户界面
 
@@ -92,4 +104,10 @@ LECPServer目前是基于 JLean v2.2.x 版本开发，而JLean v2.2.x版本需�
 | cn | 简体中文 | ✔️ @xeden3
 | en| English | ✔️ @xeden3
 | jp | 日本語 | @xeden3
+
+## 关于JLean授权
+
+LECPServer 为免费开源软件，所有功能均免费，其内核为JLean，内核需要遵循JLean的授权模式。 针对LECPServer的功能，如果只针对两个PLC，则完全可以免费使用，但若需要两个以上的PLC进行链路，则需要给JLean进行授权。
+
+JLean的网站 http://www.jlean.org
 

@@ -1,5 +1,5 @@
 // global value
-var g_version = "v1.0.11";
+var g_version = "v1.0.12";
 $("[name='lb_version']").html("2020 &copy; LECPServer By Leanboard Tech Ltd &nbsp;|&nbsp; " + g_version + "  &nbsp;");
 JsProxyAPI.setTitle("LECPServer " + g_version)
 JsProxyAPI.setNotifyIcon("logo.ico");

@@ -29,6 +29,7 @@ function init_apg_dashboard(){
                     "": "",
                     "Bool": "Bool",
                     "Word": "Word",
+                    "DWord": "DWord",
                     "String": "String",
                     "Float": "Float",
                     "Double": "Double"

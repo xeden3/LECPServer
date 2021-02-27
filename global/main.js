@@ -1,5 +1,5 @@
 // global value
-var g_version = "v1.0.12";
+var g_version = "v1.0.17";
 $("[name='lb_version']").html("2020 &copy; LECPServer By Leanboard Tech Ltd &nbsp;|&nbsp; " + g_version + "  &nbsp;");
 JsProxyAPI.setTitle("LECPServer " + g_version)
 JsProxyAPI.setNotifyIcon("logo.ico");
@@ -496,6 +496,30 @@ function init_webapi_server() {
                         } else {
                             return JSON.stringify({ "errcode": 4057, "errmsg": "plc_write_node err " + done[1], "rtval": null });
                         }
+
+                    } else if (type == "DWord") {
+                        if(protocol=="modbus"){
+                            let addr = plc_read_node(node, g_plc_data, "addr");
+                            addr = addr.toLowerCase();
+                            if(addr.startsWith("holding") || addr.startsWith("h")){
+                                addr = addr.replace("holding", "");
+                                addr = addr.replace("h", "");
+                                done = JsProxyAPI.plcWriteUInt32Blocking(g_handler_plc[dev], addr, j['value']);
+                            }else if(addr.startsWith("input") || addr.startsWith("i")){
+                                return JSON.stringify({ "errcode": 4058, "errmsg": "modbus does not support input register writing", "rtval": null });
+                            }else{
+                                addr = addr;
+                                done = JsProxyAPI.plcWriteUInt32Blocking(g_handler_plc[dev], addr, j['value']);
+                            }
+                        }else{
+                            done = JsProxyAPI.plcWriteUInt32Blocking(g_handler_plc[dev], plc_read_node(node, g_plc_data, "addr"), j['value']);
+                        }
+                        if (done[0] == true) {
+                            return JSON.stringify({ "errcode": 0, "errmsg": "" });
+                        } else {
+                            return JSON.stringify({ "errcode": 4057, "errmsg": "plc_write_node err " + done[1], "rtval": null });
+                        }
+
                     } else if (type == "Float") {
                         if(protocol=="modbus"){
                             let addr = plc_read_node(node, g_plc_data, "addr");
@@ -541,7 +565,7 @@ function init_webapi_server() {
                             return JSON.stringify({ "errcode": 4057, "errmsg": "plc_write_node err " + done[1], "rtval": null });
                         }
                     } else {
-                        return JSON.stringify({ "errcode": 4007, "errmsg": "Key type is not in Word / Bool / String / Float / Double" });
+                        return JSON.stringify({ "errcode": 4007, "errmsg": "Key type is not in Word / DWord /Bool / String / Float / Double" });
                     }
                 } catch (e) {
                     return JSON.stringify({ "errcode": 4056, "errmsg": "plc_write_node err:" + e, "rtval": null });
@@ -671,6 +695,28 @@ function init_webapi_server() {
                             } else {
                                 return JSON.stringify({ "errcode": 4057, "errmsg": "plc_write_node err [" + node + "] [" + v + "]" + done[1], "rtval": null });
                             }
+                        } else if (type == "DWord") {
+                            if(protocol=="modbus"){
+                                let addr = plc_read_node(node, g_plc_data, "addr");
+                                addr = addr.toLowerCase();
+                                if(addr.startsWith("holding") || addr.startsWith("h")){
+                                    addr = addr.replace("holding", "");
+                                    addr = addr.replace("h", "");
+                                    done = JsProxyAPI.plcWriteUInt32Blocking(g_handler_plc[dev], addr, v);
+                                }else if(addr.startsWith("input") || addr.startsWith("i")){
+                                    return JSON.stringify({ "errcode": 4058, "errmsg": "modbus does not support input register writing", "rtval": null });
+                                }else{
+                                    addr = addr;
+                                    done = JsProxyAPI.plcWriteUInt32Blocking(g_handler_plc[dev], addr, v);
+                                }
+                            }else{
+                                done = JsProxyAPI.plcWriteUInt32Blocking(g_handler_plc[dev], plc_read_node(node, g_plc_data, "addr"), v);
+                            }
+                            if (done[0] == true) {
+                                // return JSON.stringify({ "errcode": 0, "errmsg": "" });
+                            } else {
+                                return JSON.stringify({ "errcode": 4057, "errmsg": "plc_write_node err [" + node + "] [" + v + "]" + done[1], "rtval": null });
+                            }
                         } else if (type == "Float") {
                             if(protocol=="modbus"){
                                 let addr = plc_read_node(node, g_plc_data, "addr");
@@ -716,7 +762,7 @@ function init_webapi_server() {
                                 return JSON.stringify({ "errcode": 4057, "errmsg": "plc_write_node err [" + node + "] [" + v + "]" + done[1], "rtval": null });
                             }
                         } else {
-                            return JSON.stringify({ "errcode": 4007, "errmsg": "Key type is not in Word / Bool / String / Float / Double" });
+                            return JSON.stringify({ "errcode": 4007, "errmsg": "Key type is not in Word / DWord /Bool / String / Float / Double" });
                         }
                     } catch (e) {
                         return JSON.stringify({ "errcode": 4056, "errmsg": "plc_write_node err [" + node + "] " + e, "rtval": null });
@@ -793,17 +839,22 @@ async function init_plc_device(dev) {
         // 欧姆龙fins协议
         let dd = g_modules_conf[d['PLC_DRIVER']];
         let type = dd['TYPE'];
-
+        let string_reverse = false;
+        if(d['STRING_REVERSE']==="true"){
+            string_reverse = true;
+        }else{
+            string_reverse = false;
+        }
         if (type == "TCP" || type == "MODBUSTCP") {
-            let s = dd['FUNCTION'] + ',function(success,handler){console.log(success,handler);if(success){resolve(handler)}else{reject(handler)}},' + Number(dd['RECV_TIMEOUT']) + ',"' + dd['DATAFORMAT'] + '",' + Boolean(dd['STRING_REVERSE']) + ',true);';
+            let s = dd['FUNCTION'] + ',function(success,handler){console.log(success,handler);if(success){resolve(handler)}else{reject(handler)}},' + Number(d['RECV_TIMEOUT']) + ',"' + d['DATAFORMAT'] + '",' + Boolean(string_reverse) + ',true);';
             eval(s);
         }
         if (type == "UDP" || type == "MODBUSUDP") {
-            let s = dd['FUNCTION'] + ',function(success,handler){console.log(success,handler);if(success){resolve(handler)}else{reject(handler)}},"' + dd['DATAFORMAT'] + '",' + Boolean(dd['STRING_REVERSE']) + ');';
+            let s = dd['FUNCTION'] + ',function(success,handler){console.log(success,handler);if(success){resolve(handler)}else{reject(handler)}},"' + d['DATAFORMAT'] + '",' + Boolean(string_reverse) + ');';
             eval(s);
         }
         if (type == "SERIAL" || type == "MODBUSSERIAL") {
-            let s = dd['FUNCTION'] + ',function(success,handler){console.log(success,handler);if(success){resolve(handler)}else{reject(handler)}},"' + dd['DATAFORMAT'] + '",' + Boolean(dd['STRING_REVERSE']) + ');';
+            let s = dd['FUNCTION'] + ',function(success,handler){console.log(success,handler);if(success){resolve(handler)}else{reject(handler)}},"' + d['DATAFORMAT'] + '",' + Boolean(string_reverse) + ');';
             eval(s);
         }
         /*
@@ -919,6 +970,33 @@ function plc_write_uint16_await(handler, addr, data) {
         });
     });
 }
+
+// 写入PLC信息 DWORD
+function plc_write_uint32_await(handler, addr, data) {
+    return new Promise((resolve, reject) => {
+        JsProxyAPI.plcWriteUInt32(handler, addr, data, function (success, value) {
+            if (success) {
+                resolve(value);
+            } else {
+                reject(value);
+            }
+        });
+    });
+}
+
+// 读取PLC信息 DWORD
+function plc_read_uint32_await(handler, addr, length) {
+    return new Promise((resolve, reject) => {
+        JsProxyAPI.plcReadUInt32(handler, addr, length, function (success, value) {
+            if (success) {
+                resolve(value);
+            } else {
+                reject(value);
+            }
+        });
+    });
+}
+
 
 // 读取PLC信息 String
 function plc_read_string_await(handler, addr, length) {
@@ -1096,6 +1174,9 @@ async function sync_plc_nodes_await() {
                     } else if (g_plc_data['NODES'][dev][key]['type'] == "Word") {
                         let c = parseInt(g_plc_data['NODES'][dev][key]['length']);
                         g_plc_data['NODES'][dev][key]['value'] = new Array(c).fill(0);
+                    } else if (g_plc_data['NODES'][dev][key]['type'] == "DWord") {
+                        let c = parseInt(g_plc_data['NODES'][dev][key]['length']);
+                        g_plc_data['NODES'][dev][key]['value'] = new Array(c).fill(0);
                     } else {
                         let c = parseInt(g_plc_data['NODES'][dev][key]['length']);
                         g_plc_data['NODES'][dev][key]['value'] = new Array(c).fill(0);
@@ -1194,6 +1275,31 @@ async function sync_plc_nodes_await() {
                         // 其他类型的PLC读取Word
                         rt = await plc_read_uint16_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']));
                     }
+
+                } else if (g_plc_data['NODES'][dev][key]['type'] == "DWord") {
+                    if (protocol == "modbus") {
+                        // modbus类型的PLC读取DWord
+                        // modbus DWord 类型的地址结构有三种 holdingN inputN N
+                        // 如 001 holding001 input001 分别代表 保持寄存器001 保持寄存器001 和输入寄存器001
+                        // 默认使用保持寄存器
+                        addr = addr_src.toLowerCase();
+                        if(addr.startsWith("holding") || addr.startsWith("h")){
+                            addr = addr.replace("holding", "");
+                            addr = addr.replace("h", "");
+                            rt = await plc_read_uint32_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                        }else if(addr.startsWith("input") || addr.startsWith("i")){
+                            addr = addr.replace("input", "");
+                            addr = addr.replace("i", "");
+                            rt = await plc_read_uint32_await(g_handler_plc[dev], "x=4;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                        }else{
+                            addr = addr;
+                            rt = await plc_read_uint32_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                        }
+                    } else {
+                        // 其他类型的PLC读取DWord
+                        rt = await plc_read_uint32_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    }
+
                 } else if (g_plc_data['NODES'][dev][key]['type'] == "Float") {
                     if (protocol == "modbus") {
                         // modbus类型的PLC读取Float

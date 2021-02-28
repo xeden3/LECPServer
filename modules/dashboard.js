@@ -1,8 +1,9 @@
 
 var plc_dev_apg_select = "";
 var apg_dashboard = null;
+var apg_last_val_of_length = "";
 
-function init_apg_dashboard(){
+function init_apg_dashboard() {
     apg_dashboard = new AppendGrid({
         element: "dt_process_start_page_start_page",
         uiFramework: "default",
@@ -28,6 +29,7 @@ function init_apg_dashboard(){
                 ctrlOptions: {
                     "": "",
                     "Bool": "Bool",
+                    "Byte": "Byte",
                     "Word": "Word",
                     "DWord": "DWord",
                     "String": "String",
@@ -46,7 +48,7 @@ function init_apg_dashboard(){
                             // e.target.style.backgroundColor = null;
                         }
                     },
-    
+
                 }
             },
             {
@@ -57,7 +59,32 @@ function init_apg_dashboard(){
                     min: 0,
                     max: 99999999
                 },
-                cellClass: "form-control-input-sm"
+                cellClass: "form-control-input-sm",
+                // Add change event
+                events: {
+                    click: function (e) {
+                        let rowIndex = apg_dashboard.getRowIndex(parseInt(e.uniqueIndex));
+                        let type = apg_dashboard.getCtrlValue("type", rowIndex);
+                        apg_last_val_of_length = e.target.value;
+                    },
+                    change: function (e) {
+                        let rowIndex = apg_dashboard.getRowIndex(parseInt(e.uniqueIndex));
+                        let type = apg_dashboard.getCtrlValue("type", rowIndex);
+                        // 针对Byte类型，需要偶数
+                        if (type === "Byte") {
+                            if (parseInt(e.target.value) % 2 !== 0) {
+                                // not odd
+                                if(parseInt(apg_last_val_of_length) > parseInt(e.target.value)){
+                                    // --
+                                    e.target.value = parseInt(e.target.value) - 1;
+                                }else{
+                                    // ++
+                                    e.target.value = parseInt(e.target.value) + 1;
+                                }
+                            }
+                        }
+                    }
+                }
             },
             {
                 name: "note",
@@ -90,7 +117,7 @@ function init_apg_dashboard(){
                     let inputGroup = document.createElement("div");
                     inputGroup.classList.add("input-group");
                     parent.appendChild(inputGroup);
-    
+
                     // Create the input elementt
                     let inputControl = document.createElement("button");
                     let copyControl = document.createElement("button");
@@ -100,7 +127,7 @@ function init_apg_dashboard(){
                     inputControl.setAttribute("data-tags", uniqueIndex);
                     inputControl.appendChild(t_send);
                     inputGroup.appendChild(inputControl);
-    
+
                     copyControl.name = "btn_dashboard_page_row_copy";
                     copyControl.setAttribute("data-tags", uniqueIndex);
                     copyControl.appendChild(t_copy);
@@ -199,8 +226,10 @@ $("#dt_process_start_page_start_page").on("click", "button[name='btn_dashboard_p
     if (type != "String") {
         let a = rsp.split(",");
         let max = length;
-        if (a.length < length) {
-            max = a.length
+        if (type != "Byte") {
+            if (a.length < length) {
+                max = a.length
+            }
         }
         for (i = 0; i < max; i++) {
             buff.push(a[i]);
@@ -502,7 +531,7 @@ $("[name='btn_dashboard_page_delete_device']").on("click", function () {
         let last_device_select = plc_dev_apg_select;
 
         JsProxyAPI.fileWrite("plc.conf", JSON.stringify(g_plc_data, null, "\t"));
-        
+
         init_device_list();
         // 重新加载所有设备
         plc_close_all();

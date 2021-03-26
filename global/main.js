@@ -1,18 +1,17 @@
 // global value
-var g_version = "v1.0.18";
+var g_version = "v1.0.21";
 $("[name='lb_version']").html("2020 &copy; LECPServer By Leanboard Tech Ltd &nbsp;|&nbsp; " + g_version + "  &nbsp;");
 JsProxyAPI.setTitle("LECPServer " + g_version)
 JsProxyAPI.setNotifyIcon("logo.ico");
 JsProxyAPI.setNotifyTitle("LECPServer");
 
-var g_plc_data = null; // OPCUA当前数据
+var g_plc_data = null; // plc当前数据
 var g_user_login = ""; // 当前登陆用户
-var g_qr_rfid_auto_running = false;  // 读取qr/rfid自动流程开关
-var g_matching_auto_running = false; // 配对自动流程开关
 var g_handler_plc = {};
 var g_handler_db = null;
 var g_modules_conf = null;
 var g_settings_conf = null;
+var g_sync_worker_lock = null;
 
 // PLC的返回状态，包括入口和出口，可以分别进行报警和显示
 // Online和Offline只看入口即可
@@ -136,6 +135,13 @@ function Queue() {
     this.getItems = function () {
         return items;
     }
+}
+
+function get_guid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+        return v.toString(16);
+    });
 }
 // =======================================================================
 // =======================================================================
@@ -347,6 +353,16 @@ function init_webapi_server() {
                 return JSON.stringify({ "errcode": 4002, "errmsg": "Key node is not exist" });
             }
 
+            // 如果PLC离线则返回异常
+            let dev = plc_get_node_dev(j['node'], g_plc_data);
+            if (dev == null || typeof (g_plc_status[dev]) == "undefined") {
+                return JSON.stringify({ "errcode": 4012, "errmsg": "Device " + dev + " is not exist" });
+            }
+            if (g_plc_status[dev]['online'] == false) {
+                return JSON.stringify({ "errcode": 4013, "errmsg": "Device " + dev + " is offline" });
+            }
+            dev = null;
+
             // 处理 plc_read_node
             if (j['action'] == "plc_read_node") {
                 console.time("A");
@@ -423,7 +439,7 @@ function init_webapi_server() {
                     return JSON.stringify({ "errcode": 4059, "errmsg": "Node [" + node + "] is not exists", "rtval": null });
                 }
                 let protocol = "";
-                if(g_modules_conf[g_plc_data['DEVS'][dev]['PLC_DRIVER']]['TYPE'] .startsWith("MODBUS")){
+                if (g_modules_conf[g_plc_data['DEVS'][dev]['PLC_DRIVER']]['TYPE'].startsWith("MODBUS")) {
                     protocol = "modbus";
                 }
 
@@ -431,20 +447,20 @@ function init_webapi_server() {
                     let done = false;
                     let rtval = null;
                     if (type == "String") {
-                        if(protocol=="modbus"){
+                        if (protocol == "modbus") {
                             let addr = plc_read_node(node, g_plc_data, "addr");
                             addr = addr.toLowerCase();
-                            if(addr.startsWith("holding") || addr.startsWith("h")){
+                            if (addr.startsWith("holding") || addr.startsWith("h")) {
                                 addr = addr.replace("holding", "");
                                 addr = addr.replace("h", "");
                                 done = JsProxyAPI.plcWriteStringBlocking(g_handler_plc[dev], addr, j['value']);
-                            }else if(addr.startsWith("input") || addr.startsWith("i")){
+                            } else if (addr.startsWith("input") || addr.startsWith("i")) {
                                 return JSON.stringify({ "errcode": 4058, "errmsg": "modbus does not support input register writing", "rtval": null });
-                            }else{
+                            } else {
                                 addr = addr;
                                 done = JsProxyAPI.plcWriteStringBlocking(g_handler_plc[dev], addr, j['value']);
                             }
-                        }else{
+                        } else {
                             done = JsProxyAPI.plcWriteStringBlocking(g_handler_plc[dev], plc_read_node(node, g_plc_data, "addr"), j['value']);
                         }
                         if (done[0] == true) {
@@ -453,20 +469,20 @@ function init_webapi_server() {
                             return JSON.stringify({ "errcode": 4057, "errmsg": "plc_write_node err " + done[1], "rtval": null });
                         }
                     } else if (type == "Bool") {
-                        if(protocol=="modbus"){
+                        if (protocol == "modbus") {
                             let addr = plc_read_node(node, g_plc_data, "addr");
                             addr = addr.toLowerCase();
-                            if(addr.startsWith("coil") || addr.startsWith("c")){
+                            if (addr.startsWith("coil") || addr.startsWith("c")) {
                                 addr = addr.replace("coil", "");
                                 addr = addr.replace("c", "");
                                 done = JsProxyAPI.plcWriteBoolBlocking(g_handler_plc[dev], addr, j['value']);
-                            }else if(addr.startsWith("discrete") || addr.startsWith("d")){
+                            } else if (addr.startsWith("discrete") || addr.startsWith("d")) {
                                 return JSON.stringify({ "errcode": 4058, "errmsg": "modbus does not support discrete register writing", "rtval": null });
-                            }else{
+                            } else {
                                 addr = addr;
                                 done = JsProxyAPI.plcWriteBoolBlocking(g_handler_plc[dev], addr, j['value']);
                             }
-                        }else{
+                        } else {
                             done = JsProxyAPI.plcWriteBoolBlocking(g_handler_plc[dev], plc_read_node(node, g_plc_data, "addr"), j['value']);
                         }
                         if (done[0] == true) {
@@ -475,20 +491,20 @@ function init_webapi_server() {
                             return JSON.stringify({ "errcode": 4057, "errmsg": "plc_write_node err " + done[1], "rtval": null });
                         }
                     } else if (type == "Byte") {
-                        if(protocol=="modbus"){
+                        if (protocol == "modbus") {
                             let addr = plc_read_node(node, g_plc_data, "addr");
                             addr = addr.toLowerCase();
-                            if(addr.startsWith("holding") || addr.startsWith("h")){
+                            if (addr.startsWith("holding") || addr.startsWith("h")) {
                                 addr = addr.replace("holding", "");
                                 addr = addr.replace("h", "");
                                 done = JsProxyAPI.plcWriteBlocking(g_handler_plc[dev], addr, j['value']);
-                            }else if(addr.startsWith("input") || addr.startsWith("i")){
+                            } else if (addr.startsWith("input") || addr.startsWith("i")) {
                                 return JSON.stringify({ "errcode": 4058, "errmsg": "modbus does not support input register writing", "rtval": null });
-                            }else{
+                            } else {
                                 addr = addr;
                                 done = JsProxyAPI.plcWriteBlocking(g_handler_plc[dev], addr, j['value']);
                             }
-                        }else{
+                        } else {
                             done = JsProxyAPI.plcWriteBlocking(g_handler_plc[dev], plc_read_node(node, g_plc_data, "addr"), j['value']);
                         }
                         if (done[0] == true) {
@@ -497,20 +513,20 @@ function init_webapi_server() {
                             return JSON.stringify({ "errcode": 4057, "errmsg": "plc_write_node err " + done[1], "rtval": null });
                         }
                     } else if (type == "Word") {
-                        if(protocol=="modbus"){
+                        if (protocol == "modbus") {
                             let addr = plc_read_node(node, g_plc_data, "addr");
                             addr = addr.toLowerCase();
-                            if(addr.startsWith("holding") || addr.startsWith("h")){
+                            if (addr.startsWith("holding") || addr.startsWith("h")) {
                                 addr = addr.replace("holding", "");
                                 addr = addr.replace("h", "");
                                 done = JsProxyAPI.plcWriteUInt16Blocking(g_handler_plc[dev], addr, j['value']);
-                            }else if(addr.startsWith("input") || addr.startsWith("i")){
+                            } else if (addr.startsWith("input") || addr.startsWith("i")) {
                                 return JSON.stringify({ "errcode": 4058, "errmsg": "modbus does not support input register writing", "rtval": null });
-                            }else{
+                            } else {
                                 addr = addr;
                                 done = JsProxyAPI.plcWriteUInt16Blocking(g_handler_plc[dev], addr, j['value']);
                             }
-                        }else{
+                        } else {
                             done = JsProxyAPI.plcWriteUInt16Blocking(g_handler_plc[dev], plc_read_node(node, g_plc_data, "addr"), j['value']);
                         }
                         if (done[0] == true) {
@@ -519,20 +535,20 @@ function init_webapi_server() {
                             return JSON.stringify({ "errcode": 4057, "errmsg": "plc_write_node err " + done[1], "rtval": null });
                         }
                     } else if (type == "DWord") {
-                        if(protocol=="modbus"){
+                        if (protocol == "modbus") {
                             let addr = plc_read_node(node, g_plc_data, "addr");
                             addr = addr.toLowerCase();
-                            if(addr.startsWith("holding") || addr.startsWith("h")){
+                            if (addr.startsWith("holding") || addr.startsWith("h")) {
                                 addr = addr.replace("holding", "");
                                 addr = addr.replace("h", "");
                                 done = JsProxyAPI.plcWriteUInt32Blocking(g_handler_plc[dev], addr, j['value']);
-                            }else if(addr.startsWith("input") || addr.startsWith("i")){
+                            } else if (addr.startsWith("input") || addr.startsWith("i")) {
                                 return JSON.stringify({ "errcode": 4058, "errmsg": "modbus does not support input register writing", "rtval": null });
-                            }else{
+                            } else {
                                 addr = addr;
                                 done = JsProxyAPI.plcWriteUInt32Blocking(g_handler_plc[dev], addr, j['value']);
                             }
-                        }else{
+                        } else {
                             done = JsProxyAPI.plcWriteUInt32Blocking(g_handler_plc[dev], plc_read_node(node, g_plc_data, "addr"), j['value']);
                         }
                         if (done[0] == true) {
@@ -542,20 +558,20 @@ function init_webapi_server() {
                         }
 
                     } else if (type == "Float") {
-                        if(protocol=="modbus"){
+                        if (protocol == "modbus") {
                             let addr = plc_read_node(node, g_plc_data, "addr");
                             addr = addr.toLowerCase();
-                            if(addr.startsWith("holding") || addr.startsWith("h")){
+                            if (addr.startsWith("holding") || addr.startsWith("h")) {
                                 addr = addr.replace("holding", "");
                                 addr = addr.replace("h", "");
                                 done = JsProxyAPI.plcWriteFloatBlocking(g_handler_plc[dev], addr, j['value']);
-                            }else if(addr.startsWith("input") || addr.startsWith("i")){
+                            } else if (addr.startsWith("input") || addr.startsWith("i")) {
                                 return JSON.stringify({ "errcode": 4058, "errmsg": "modbus does not support input register writing", "rtval": null });
-                            }else{
+                            } else {
                                 addr = addr;
                                 done = JsProxyAPI.plcWriteFloatBlocking(g_handler_plc[dev], addr, j['value']);
                             }
-                        }else{
+                        } else {
                             done = JsProxyAPI.plcWriteFloatBlocking(g_handler_plc[dev], plc_read_node(node, g_plc_data, "addr"), j['value']);
                         }
                         if (done[0] == true) {
@@ -564,20 +580,20 @@ function init_webapi_server() {
                             return JSON.stringify({ "errcode": 4057, "errmsg": "plc_write_node err " + done[1], "rtval": null });
                         }
                     } else if (type == "Double") {
-                        if(protocol=="modbus"){
+                        if (protocol == "modbus") {
                             let addr = plc_read_node(node, g_plc_data, "addr");
                             addr = addr.toLowerCase();
-                            if(addr.startsWith("holding") || addr.startsWith("h")){
+                            if (addr.startsWith("holding") || addr.startsWith("h")) {
                                 addr = addr.replace("holding", "");
                                 addr = addr.replace("h", "");
                                 done = JsProxyAPI.plcWriteDoubleBlocking(g_handler_plc[dev], addr, j['value']);
-                            }else if(addr.startsWith("input") || addr.startsWith("i")){
+                            } else if (addr.startsWith("input") || addr.startsWith("i")) {
                                 return JSON.stringify({ "errcode": 4058, "errmsg": "modbus does not support input register writing", "rtval": null });
-                            }else{
+                            } else {
                                 addr = addr;
                                 done = JsProxyAPI.plcWriteDoubleBlocking(g_handler_plc[dev], addr, j['value']);
                             }
-                        }else{
+                        } else {
                             done = JsProxyAPI.plcWriteDoubleBlocking(g_handler_plc[dev], plc_read_node(node, g_plc_data, "addr"), j['value']);
                         }
                         if (done[0] == true) {
@@ -642,7 +658,7 @@ function init_webapi_server() {
                     }
 
                     let protocol = "";
-                    if(g_modules_conf[g_plc_data['DEVS'][dev]['PLC_DRIVER']]['TYPE'] .startsWith("MODBUS")){
+                    if (g_modules_conf[g_plc_data['DEVS'][dev]['PLC_DRIVER']]['TYPE'].startsWith("MODBUS")) {
                         protocol = "modbus";
                     }
 
@@ -651,20 +667,20 @@ function init_webapi_server() {
                         let rtval = null;
                         let v = j['value'][i];
                         if (type == "String") {
-                            if(protocol=="modbus"){
+                            if (protocol == "modbus") {
                                 let addr = plc_read_node(node, g_plc_data, "addr");
                                 addr = addr.toLowerCase();
-                                if(addr.startsWith("holding") || addr.startsWith("h")){
+                                if (addr.startsWith("holding") || addr.startsWith("h")) {
                                     addr = addr.replace("holding", "");
                                     addr = addr.replace("h", "");
                                     done = JsProxyAPI.plcWriteStringBlocking(g_handler_plc[dev], addr, v);
-                                }else if(addr.startsWith("input") || addr.startsWith("i")){
+                                } else if (addr.startsWith("input") || addr.startsWith("i")) {
                                     return JSON.stringify({ "errcode": 4058, "errmsg": "modbus does not support input register writing", "rtval": null });
-                                }else{
+                                } else {
                                     addr = addr;
                                     done = JsProxyAPI.plcWriteStringBlocking(g_handler_plc[dev], addr, v);
                                 }
-                            }else{
+                            } else {
                                 done = JsProxyAPI.plcWriteStringBlocking(g_handler_plc[dev], plc_read_node(node, g_plc_data, "addr"), v);
                             }
                             if (done[0] == true) {
@@ -673,20 +689,20 @@ function init_webapi_server() {
                                 return JSON.stringify({ "errcode": 4057, "errmsg": "plc_write_node err [" + node + "] [" + v + "]" + done[1], "rtval": null });
                             }
                         } else if (type == "Bool") {
-                            if(protocol=="modbus"){
+                            if (protocol == "modbus") {
                                 let addr = plc_read_node(node, g_plc_data, "addr");
                                 addr = addr.toLowerCase();
-                                if(addr.startsWith("coil") || addr.startsWith("c")){
+                                if (addr.startsWith("coil") || addr.startsWith("c")) {
                                     addr = addr.replace("coil", "");
                                     addr = addr.replace("c", "");
                                     done = JsProxyAPI.plcWriteBoolBlocking(g_handler_plc[dev], addr, v);
-                                }else if(addr.startsWith("discrete") || addr.startsWith("d")){
+                                } else if (addr.startsWith("discrete") || addr.startsWith("d")) {
                                     return JSON.stringify({ "errcode": 4058, "errmsg": "modbus does not support discrete register writing", "rtval": null });
-                                }else{
+                                } else {
                                     addr = addr;
                                     done = JsProxyAPI.plcWriteBoolBlocking(g_handler_plc[dev], addr, v);
                                 }
-                            }else{
+                            } else {
                                 done = JsProxyAPI.plcWriteBoolBlocking(g_handler_plc[dev], plc_read_node(node, g_plc_data, "addr"), v);
                             }
                             if (done[0] == true) {
@@ -695,20 +711,20 @@ function init_webapi_server() {
                                 return JSON.stringify({ "errcode": 4057, "errmsg": "plc_write_node err [" + node + "] [" + v + "]" + done[1], "rtval": null });
                             }
                         } else if (type == "Byte") {
-                            if(protocol=="modbus"){
+                            if (protocol == "modbus") {
                                 let addr = plc_read_node(node, g_plc_data, "addr");
                                 addr = addr.toLowerCase();
-                                if(addr.startsWith("holding") || addr.startsWith("h")){
+                                if (addr.startsWith("holding") || addr.startsWith("h")) {
                                     addr = addr.replace("holding", "");
                                     addr = addr.replace("h", "");
                                     done = JsProxyAPI.plcWriteBlocking(g_handler_plc[dev], addr, v);
-                                }else if(addr.startsWith("input") || addr.startsWith("i")){
+                                } else if (addr.startsWith("input") || addr.startsWith("i")) {
                                     return JSON.stringify({ "errcode": 4058, "errmsg": "modbus does not support input register writing", "rtval": null });
-                                }else{
+                                } else {
                                     addr = addr;
                                     done = JsProxyAPI.plcWriteBlocking(g_handler_plc[dev], addr, v);
                                 }
-                            }else{
+                            } else {
                                 done = JsProxyAPI.plcWriteBlocking(g_handler_plc[dev], plc_read_node(node, g_plc_data, "addr"), v);
                             }
                             if (done[0] == true) {
@@ -717,20 +733,20 @@ function init_webapi_server() {
                                 return JSON.stringify({ "errcode": 4057, "errmsg": "plc_write_node err [" + node + "] [" + v + "]" + done[1], "rtval": null });
                             }
                         } else if (type == "Word") {
-                            if(protocol=="modbus"){
+                            if (protocol == "modbus") {
                                 let addr = plc_read_node(node, g_plc_data, "addr");
                                 addr = addr.toLowerCase();
-                                if(addr.startsWith("holding") || addr.startsWith("h")){
+                                if (addr.startsWith("holding") || addr.startsWith("h")) {
                                     addr = addr.replace("holding", "");
                                     addr = addr.replace("h", "");
                                     done = JsProxyAPI.plcWriteUInt16Blocking(g_handler_plc[dev], addr, v);
-                                }else if(addr.startsWith("input") || addr.startsWith("i")){
+                                } else if (addr.startsWith("input") || addr.startsWith("i")) {
                                     return JSON.stringify({ "errcode": 4058, "errmsg": "modbus does not support input register writing", "rtval": null });
-                                }else{
+                                } else {
                                     addr = addr;
                                     done = JsProxyAPI.plcWriteUInt16Blocking(g_handler_plc[dev], addr, v);
                                 }
-                            }else{
+                            } else {
                                 done = JsProxyAPI.plcWriteUInt16Blocking(g_handler_plc[dev], plc_read_node(node, g_plc_data, "addr"), v);
                             }
                             if (done[0] == true) {
@@ -739,20 +755,20 @@ function init_webapi_server() {
                                 return JSON.stringify({ "errcode": 4057, "errmsg": "plc_write_node err [" + node + "] [" + v + "]" + done[1], "rtval": null });
                             }
                         } else if (type == "DWord") {
-                            if(protocol=="modbus"){
+                            if (protocol == "modbus") {
                                 let addr = plc_read_node(node, g_plc_data, "addr");
                                 addr = addr.toLowerCase();
-                                if(addr.startsWith("holding") || addr.startsWith("h")){
+                                if (addr.startsWith("holding") || addr.startsWith("h")) {
                                     addr = addr.replace("holding", "");
                                     addr = addr.replace("h", "");
                                     done = JsProxyAPI.plcWriteUInt32Blocking(g_handler_plc[dev], addr, v);
-                                }else if(addr.startsWith("input") || addr.startsWith("i")){
+                                } else if (addr.startsWith("input") || addr.startsWith("i")) {
                                     return JSON.stringify({ "errcode": 4058, "errmsg": "modbus does not support input register writing", "rtval": null });
-                                }else{
+                                } else {
                                     addr = addr;
                                     done = JsProxyAPI.plcWriteUInt32Blocking(g_handler_plc[dev], addr, v);
                                 }
-                            }else{
+                            } else {
                                 done = JsProxyAPI.plcWriteUInt32Blocking(g_handler_plc[dev], plc_read_node(node, g_plc_data, "addr"), v);
                             }
                             if (done[0] == true) {
@@ -761,20 +777,20 @@ function init_webapi_server() {
                                 return JSON.stringify({ "errcode": 4057, "errmsg": "plc_write_node err [" + node + "] [" + v + "]" + done[1], "rtval": null });
                             }
                         } else if (type == "Float") {
-                            if(protocol=="modbus"){
+                            if (protocol == "modbus") {
                                 let addr = plc_read_node(node, g_plc_data, "addr");
                                 addr = addr.toLowerCase();
-                                if(addr.startsWith("holding") || addr.startsWith("h")){
+                                if (addr.startsWith("holding") || addr.startsWith("h")) {
                                     addr = addr.replace("holding", "");
                                     addr = addr.replace("h", "");
                                     done = JsProxyAPI.plcWriteFloatBlocking(g_handler_plc[dev], addr, v);
-                                }else if(addr.startsWith("input") || addr.startsWith("i")){
+                                } else if (addr.startsWith("input") || addr.startsWith("i")) {
                                     return JSON.stringify({ "errcode": 4058, "errmsg": "modbus does not support input register writing", "rtval": null });
-                                }else{
+                                } else {
                                     addr = addr;
                                     done = JsProxyAPI.plcWriteFloatBlocking(g_handler_plc[dev], addr, v);
                                 }
-                            }else{
+                            } else {
                                 done = JsProxyAPI.plcWriteFloatBlocking(g_handler_plc[dev], plc_read_node(node, g_plc_data, "addr"), v);
                             }
                             if (done[0] == true) {
@@ -783,20 +799,20 @@ function init_webapi_server() {
                                 return JSON.stringify({ "errcode": 4057, "errmsg": "plc_write_node err [" + node + "] [" + v + "]" + done[1], "rtval": null });
                             }
                         } else if (type == "Double") {
-                            if(protocol=="modbus"){
+                            if (protocol == "modbus") {
                                 let addr = plc_read_node(node, g_plc_data, "addr");
                                 addr = addr.toLowerCase();
-                                if(addr.startsWith("holding") || addr.startsWith("h")){
+                                if (addr.startsWith("holding") || addr.startsWith("h")) {
                                     addr = addr.replace("holding", "");
                                     addr = addr.replace("h", "");
                                     done = JsProxyAPI.plcWriteDoubleBlocking(g_handler_plc[dev], addr, v);
-                                }else if(addr.startsWith("input") || addr.startsWith("i")){
+                                } else if (addr.startsWith("input") || addr.startsWith("i")) {
                                     return JSON.stringify({ "errcode": 4058, "errmsg": "modbus does not support input register writing", "rtval": null });
-                                }else{
+                                } else {
                                     addr = addr;
                                     done = JsProxyAPI.plcWriteDoubleBlocking(g_handler_plc[dev], addr, v);
                                 }
-                            }else{
+                            } else {
                                 done = JsProxyAPI.plcWriteDoubleBlocking(g_handler_plc[dev], plc_read_node(node, g_plc_data, "addr"), v);
                             }
                             if (done[0] == true) {
@@ -883,9 +899,9 @@ async function init_plc_device(dev) {
         let dd = g_modules_conf[d['PLC_DRIVER']];
         let type = dd['TYPE'];
         let string_reverse = false;
-        if(d['STRING_REVERSE']==="true"){
+        if (d['STRING_REVERSE'] === "true") {
             string_reverse = true;
-        }else{
+        } else {
             string_reverse = false;
         }
         if (type == "TCP" || type == "MODBUSTCP") {
@@ -900,78 +916,6 @@ async function init_plc_device(dev) {
             let s = dd['FUNCTION'] + ',function(success,handler){console.log(success,handler);if(success){resolve(handler)}else{reject(handler)}},"' + d['DATAFORMAT'] + '",' + Boolean(string_reverse) + ');';
             eval(s);
         }
-        /*
-        if (d['PLC_DRIVER'] == "plcConnectOmronFinsNet") {
-            JsProxyAPI.plcConnectOmronFinsNet(d['IP'], parseInt(d['PORT']), parseInt(d['SA1']), parseInt(d['DA2']), function (success, handler) {
-                console.log(success, handler);
-                g_handler_plc[dev] = handler;
-                if (success) {
-                    resolve(handler);
-                } else {
-                    reject(handler);
-                }
-            }, 2000, "CDAB", false, true);
-        }
-
-        // 欧姆龙finsUdp协议
-        if (d['PLC_DRIVER'] == "plcConnectOmronFinsUdp") {
-            JsProxyAPI.plcConnectOmronFinsUdp(d['IP'], parseInt(d['PORT']), parseInt(d['SA1']), parseInt(d['DA2']), function (success, handler) {
-                console.log(success, handler);
-                g_handler_plc[dev] = handler;
-                if (success) {
-                    resolve(handler);
-                } else {
-                    reject(handler);
-                }
-            }, "CDAB", false);
-        }
-
-        // 欧姆龙hostlinkserial协议
-        if (d['PLC_DRIVER'] == "plcConnectOmronHostLinkSerial") {
-            JsProxyAPI.plcConnectOmronHostLinkSerial(d['PORT'], parseInt(d['BAUD_RATE']), parseInt(d['DATA_BITS']),
-                parseFloat(d['STOP_BITS']), d['PARITY'],
-                parseInt(d['UNIT_NUM']), parseInt(d['SID']), parseInt(d['DA2']), parseInt(d['SA2']),
-                function (success, handler) {
-                    console.log(success, handler);
-                    g_handler_plc[dev] = handler;
-                    if (success) {
-                        resolve(handler);
-                    } else {
-                        reject(handler);
-                    }
-                }, "CDAB", false);
-        }
-
-        // 欧姆龙hostlinkCmode协议
-        if (d['PLC_DRIVER'] == "plcConnectOmronHostLinkCMode") {
-            JsProxyAPI.plcConnectOmronHostLinkCMode(d['PORT'], parseInt(d['BAUD_RATE']), parseInt(d['DATA_BITS']),
-                parseFloat(d['STOP_BITS']), d['PARITY'],
-                parseInt(d['UNIT_NUM']),
-                function (success, handler) {
-                    console.log(success, handler);
-                    g_handler_plc[dev] = handler;
-                    if (success) {
-                        resolve(handler);
-                    } else {
-                        reject(handler);
-                    }
-                }, "CDAB", false);
-        }
-
-
-        // 三菱MC协议
-        if (d['PLC_DRIVER'] == "plcConnectMelsecMcNet") {
-            JsProxyAPI.plcConnectMelsecMcNet(d['IP'], parseInt(d['PORT']), function (success, handler) {
-                console.log(success, handler);
-                g_handler_plc[dev] = handler;
-                if (success) {
-                    resolve(handler);
-                } else {
-                    reject(handler);
-                }
-            }, 2000, "CDAB", false, true);
-        }
-        */
     });
 }
 
@@ -1220,19 +1164,21 @@ function http_request_await(url, data) {
 }
 
 // 同步Input Output数据（入口PLC）
-async function sync_plc_nodes_await() {
+async function sync_plc_nodes_await(dev) {
     // 查找全部节点
     // console.time("a");
     let key = null;
-    let dev = null;
-    for (dev in g_plc_data['NODES']) {
-        if (dev == "")
-            continue;
+    // let dev = null;
+    // for (dev in g_plc_data['NODES']) {
+    // }
+    if (dev == "")
+        return;
 
-        // 如果是模拟驱动的方式，不做点位同步，默认在线
-        if (g_plc_data['DEVS'][dev]['PLC_DRIVER'] == "simulation") {
-            g_plc_status[dev] = { "online": true, "errcode": 0, "errmsg": "" };
-            // 如果values没有初始化，那给他初始化的值
+    // 如果是模拟驱动的方式，不做点位同步，默认在线
+    if (g_plc_data['DEVS'][dev]['PLC_DRIVER'] == "simulation") {
+        g_plc_status[dev] = { "online": true, "errcode": 0, "errmsg": "" };
+        // 如果values没有初始化，那给他初始化的值
+        try {
             for (key in g_plc_data['NODES'][dev]) {
                 if (!g_plc_data['NODES'][dev][key].hasOwnProperty("value")) {
                     if (g_plc_data['NODES'][dev][key]['type'] == "String") {
@@ -1254,207 +1200,211 @@ async function sync_plc_nodes_await() {
                         g_plc_data['NODES'][dev][key]['value'] = new Array(c).fill(0);
                     }
                 }
-
             }
-            continue;
-        }
-
-        // 如果状态量没初始化的，初始化他
-        if (g_plc_status[dev] == null) {
-            g_plc_status[dev] = { "online": false, "errcode": 0, "errmsg": "" };
-
-        }
-        if (Object.keys(g_plc_data['NODES'][dev]).length == 0) {
-            g_plc_status[dev]['online'] = false;
-            continue;
-        }
-        let addr_src = "";
-        let addr = "";
-        try {
-            for (key in g_plc_data['NODES'][dev]) {
-                let rt = null;
-                let protocol = "";
-                if(g_modules_conf[g_plc_data['DEVS'][dev]['PLC_DRIVER']]['TYPE'] .startsWith("MODBUS")){
-                    protocol = "modbus";
-                }
-                addr_src = g_plc_data['NODES'][dev][key]['addr'];
-                if (g_plc_data['NODES'][dev][key]['type'] == "String") {
-                    if (protocol == "modbus") {
-                        // modbus类型的PLC读取String
-                        // modbus Word 类型的地址结构有三种 holdingN inputN N
-                        // 如 001 holding001 input001 分别代表 保持寄存器001 保持寄存器001 和输入寄存器001
-                        // 默认使用保持寄存器
-                        addr = addr_src.toLowerCase();
-                        if(addr.startsWith("holding") || addr.startsWith("h")){
-                            addr = addr.replace("holding", "");
-                            addr = addr.replace("h", "");
-                            rt = await plc_read_string_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }else if(addr.startsWith("input") || addr.startsWith("i")){
-                            addr = addr.replace("input", "");
-                            addr = addr.replace("i", "");
-                            rt = await plc_read_string_await(g_handler_plc[dev], "x=4;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }else{
-                            addr = addr;
-                            rt = await plc_read_string_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }
-                    } else {
-                        // 其他类型的PLC读取String
-                        rt = await plc_read_string_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']));
-                    }
-                } else if (g_plc_data['NODES'][dev][key]['type'] == "Bool") {
-                    if (protocol == "modbus") {
-                        // modbus类型的PLC读取Bool
-                        // modbus Bool 类型的地址结构有三种 coilN discreteN N
-                        // 如 001 coil001 discrete001 分别代表 线圈的001 线圈001 和离散寄存器001
-                        // 默认使用线圈
-                        addr = addr_src.toLowerCase();
-                        if(addr.startsWith("coil") || addr.startsWith("c")){
-                            addr = addr.replace("coil", "");
-                            addr = addr.replace("c", "");
-                            rt = await plc_read_bool_await(g_handler_plc[dev], "x=1;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }else if(addr.startsWith("discrete") || addr.startsWith("d")){
-                            addr = addr.replace("discrete", "");
-                            addr = addr.replace("d", "");
-                            rt = await plc_read_bool_await(g_handler_plc[dev], "x=2;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }else{
-                            addr = addr;
-                            rt = await plc_read_bool_await(g_handler_plc[dev], "x=1;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }
-                    } else {
-                        // 其他类型的PLC读取Bool
-                        rt = await plc_read_bool_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']));
-                    }
-
-
-                } else if (g_plc_data['NODES'][dev][key]['type'] == "Byte") {
-                    if (protocol == "modbus") {
-                        // modbus类型的PLC读取Byte
-                        // modbus Byte 类型的地址结构有三种 holdingN inputN N
-                        // 如 001 holding001 input001 分别代表 保持寄存器001 保持寄存器001 和输入寄存器001
-                        // 默认使用保持寄存器
-                        addr = addr_src.toLowerCase();
-                        if(addr.startsWith("holding") || addr.startsWith("h")){
-                            addr = addr.replace("holding", "");
-                            addr = addr.replace("h", "");
-                            rt = await plc_read_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length'])/2);
-                        }else if(addr.startsWith("input") || addr.startsWith("i")){
-                            addr = addr.replace("input", "");
-                            addr = addr.replace("i", "");
-                            rt = await plc_read_await(g_handler_plc[dev], "x=4;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length'])/2);
-                        }else{
-                            addr = addr;
-                            rt = await plc_read_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length'])/2);
-                        }
-                    } else {
-                        // 其他类型的PLC读取Byte
-                        rt = await plc_read_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length'])/2);
-                    }
-
-                } else if (g_plc_data['NODES'][dev][key]['type'] == "Word") {
-                    if (protocol == "modbus") {
-                        // modbus类型的PLC读取Word
-                        // modbus Word 类型的地址结构有三种 holdingN inputN N
-                        // 如 001 holding001 input001 分别代表 保持寄存器001 保持寄存器001 和输入寄存器001
-                        // 默认使用保持寄存器
-                        addr = addr_src.toLowerCase();
-                        if(addr.startsWith("holding") || addr.startsWith("h")){
-                            addr = addr.replace("holding", "");
-                            addr = addr.replace("h", "");
-                            rt = await plc_read_uint16_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }else if(addr.startsWith("input") || addr.startsWith("i")){
-                            addr = addr.replace("input", "");
-                            addr = addr.replace("i", "");
-                            rt = await plc_read_uint16_await(g_handler_plc[dev], "x=4;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }else{
-                            addr = addr;
-                            rt = await plc_read_uint16_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }
-                    } else {
-                        // 其他类型的PLC读取Word
-                        rt = await plc_read_uint16_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']));
-                    }
-
-                } else if (g_plc_data['NODES'][dev][key]['type'] == "DWord") {
-                    if (protocol == "modbus") {
-                        // modbus类型的PLC读取DWord
-                        // modbus DWord 类型的地址结构有三种 holdingN inputN N
-                        // 如 001 holding001 input001 分别代表 保持寄存器001 保持寄存器001 和输入寄存器001
-                        // 默认使用保持寄存器
-                        addr = addr_src.toLowerCase();
-                        if(addr.startsWith("holding") || addr.startsWith("h")){
-                            addr = addr.replace("holding", "");
-                            addr = addr.replace("h", "");
-                            rt = await plc_read_uint32_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }else if(addr.startsWith("input") || addr.startsWith("i")){
-                            addr = addr.replace("input", "");
-                            addr = addr.replace("i", "");
-                            rt = await plc_read_uint32_await(g_handler_plc[dev], "x=4;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }else{
-                            addr = addr;
-                            rt = await plc_read_uint32_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }
-                    } else {
-                        // 其他类型的PLC读取DWord
-                        rt = await plc_read_uint32_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']));
-                    }
-
-                } else if (g_plc_data['NODES'][dev][key]['type'] == "Float") {
-                    if (protocol == "modbus") {
-                        // modbus类型的PLC读取Float
-                        // modbus Word 类型的地址结构有三种 holdingN inputN N
-                        // 如 001 holding001 input001 分别代表 保持寄存器001 保持寄存器001 和输入寄存器001
-                        // 默认使用保持寄存器
-                        addr = addr_src.toLowerCase();
-                        if(addr.startsWith("holding") || addr.startsWith("h")){
-                            addr = addr.replace("holding", "");
-                            addr = addr.replace("h", "");
-                            rt = await plc_read_float_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }else if(addr.startsWith("input") || addr.startsWith("i")){
-                            addr = addr.replace("input", "");
-                            addr = addr.replace("i", "");
-                            rt = await plc_read_float_await(g_handler_plc[dev], "x=4;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }else{
-                            addr = addr;
-                            rt = await plc_read_float_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }
-                    } else {
-                        // 其他类型的PLC读取Float
-                        rt = await plc_read_float_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']));
-                    }
-                } else if (g_plc_data['NODES'][dev][key]['type'] == "Double") {
-                    if (protocol == "modbus") {
-                        // modbus类型的PLC读取Double
-                        // modbus Word 类型的地址结构有三种 holdingN inputN N
-                        // 如 001 holding001 input001 分别代表 保持寄存器001 保持寄存器001 和输入寄存器001
-                        // 默认使用保持寄存器
-                        addr = addr_src.toLowerCase();
-                        if(addr.startsWith("holding") || addr.startsWith("h")){
-                            addr = addr.replace("holding", "");
-                            addr = addr.replace("h", "");
-                            rt = await plc_read_double_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }else if(addr.startsWith("input") || addr.startsWith("i")){
-                            addr = addr.replace("input", "");
-                            addr = addr.replace("i", "");
-                            rt = await plc_read_double_await(g_handler_plc[dev], "x=4;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }else{
-                            addr = addr;
-                            rt = await plc_read_double_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
-                        }
-                    } else {
-                        // 其他类型的PLC读取Double
-                        rt = await plc_read_double_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']));
-                    }
-                }
-                g_plc_data['NODES'][dev][key]['value'] = rt;
-            }
-
-            g_plc_status[dev]['online'] = true;
         } catch (e) {
             g_plc_status[dev]['online'] = false;
-            g_plc_status[dev]['errmsg'] = e;
-            JsProxyAPI.loggerWrite("sync_plc_nodes: [" + dev + "] " + "[" + addr_src + "] " + e.replace(/[\r\n]/g,"") , "COMM", g_user_login);
+            g_plc_status[dev]['errmsg'] = e.toString();
+            JsProxyAPI.loggerWrite("sync_plc_nodes simulation : [" + dev + "] " + "[" + key + "] " + e.toString().replace(/[\r\n]/g, "").replace(/\\/g, "\\\\"), "COMM", g_user_login);
         }
+        return;
     }
+
+    // 如果状态量没初始化的，初始化他
+    if (g_plc_status[dev] == null) {
+        g_plc_status[dev] = { "online": false, "errcode": 0, "errmsg": "" };
+
+    }
+    if (Object.keys(g_plc_data['NODES'][dev]).length == 0) {
+        g_plc_status[dev]['online'] = false;
+        return;
+    }
+    let addr_src = "";
+    let addr = "";
+    try {
+        for (key in g_plc_data['NODES'][dev]) {
+            let rt = null;
+            let protocol = "";
+            if (g_modules_conf[g_plc_data['DEVS'][dev]['PLC_DRIVER']]['TYPE'].startsWith("MODBUS")) {
+                protocol = "modbus";
+            }
+            addr_src = g_plc_data['NODES'][dev][key]['addr'];
+            if (g_plc_data['NODES'][dev][key]['type'] == "String") {
+                if (protocol == "modbus") {
+                    // modbus类型的PLC读取String
+                    // modbus Word 类型的地址结构有三种 holdingN inputN N
+                    // 如 001 holding001 input001 分别代表 保持寄存器001 保持寄存器001 和输入寄存器001
+                    // 默认使用保持寄存器
+                    addr = addr_src.toLowerCase();
+                    if (addr.startsWith("holding") || addr.startsWith("h")) {
+                        addr = addr.replace("holding", "");
+                        addr = addr.replace("h", "");
+                        rt = await plc_read_string_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    } else if (addr.startsWith("input") || addr.startsWith("i")) {
+                        addr = addr.replace("input", "");
+                        addr = addr.replace("i", "");
+                        rt = await plc_read_string_await(g_handler_plc[dev], "x=4;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    } else {
+                        addr = addr;
+                        rt = await plc_read_string_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    }
+                } else {
+                    // 其他类型的PLC读取String
+                    rt = await plc_read_string_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']));
+                }
+            } else if (g_plc_data['NODES'][dev][key]['type'] == "Bool") {
+                if (protocol == "modbus") {
+                    // modbus类型的PLC读取Bool
+                    // modbus Bool 类型的地址结构有三种 coilN discreteN N
+                    // 如 001 coil001 discrete001 分别代表 线圈的001 线圈001 和离散寄存器001
+                    // 默认使用线圈
+                    addr = addr_src.toLowerCase();
+                    if (addr.startsWith("coil") || addr.startsWith("c")) {
+                        addr = addr.replace("coil", "");
+                        addr = addr.replace("c", "");
+                        rt = await plc_read_bool_await(g_handler_plc[dev], "x=1;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    } else if (addr.startsWith("discrete") || addr.startsWith("d")) {
+                        addr = addr.replace("discrete", "");
+                        addr = addr.replace("d", "");
+                        rt = await plc_read_bool_await(g_handler_plc[dev], "x=2;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    } else {
+                        addr = addr;
+                        rt = await plc_read_bool_await(g_handler_plc[dev], "x=1;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    }
+                } else {
+                    // 其他类型的PLC读取Bool
+                    rt = await plc_read_bool_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']));
+                }
+
+
+            } else if (g_plc_data['NODES'][dev][key]['type'] == "Byte") {
+                if (protocol == "modbus") {
+                    // modbus类型的PLC读取Byte
+                    // modbus Byte 类型的地址结构有三种 holdingN inputN N
+                    // 如 001 holding001 input001 分别代表 保持寄存器001 保持寄存器001 和输入寄存器001
+                    // 默认使用保持寄存器
+                    addr = addr_src.toLowerCase();
+                    if (addr.startsWith("holding") || addr.startsWith("h")) {
+                        addr = addr.replace("holding", "");
+                        addr = addr.replace("h", "");
+                        rt = await plc_read_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']) / 2);
+                    } else if (addr.startsWith("input") || addr.startsWith("i")) {
+                        addr = addr.replace("input", "");
+                        addr = addr.replace("i", "");
+                        rt = await plc_read_await(g_handler_plc[dev], "x=4;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']) / 2);
+                    } else {
+                        addr = addr;
+                        rt = await plc_read_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']) / 2);
+                    }
+                } else {
+                    // 其他类型的PLC读取Byte
+                    rt = await plc_read_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']) / 2);
+                }
+
+            } else if (g_plc_data['NODES'][dev][key]['type'] == "Word") {
+                if (protocol == "modbus") {
+                    // modbus类型的PLC读取Word
+                    // modbus Word 类型的地址结构有三种 holdingN inputN N
+                    // 如 001 holding001 input001 分别代表 保持寄存器001 保持寄存器001 和输入寄存器001
+                    // 默认使用保持寄存器
+                    addr = addr_src.toLowerCase();
+                    if (addr.startsWith("holding") || addr.startsWith("h")) {
+                        addr = addr.replace("holding", "");
+                        addr = addr.replace("h", "");
+                        rt = await plc_read_uint16_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    } else if (addr.startsWith("input") || addr.startsWith("i")) {
+                        addr = addr.replace("input", "");
+                        addr = addr.replace("i", "");
+                        rt = await plc_read_uint16_await(g_handler_plc[dev], "x=4;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    } else {
+                        addr = addr;
+                        rt = await plc_read_uint16_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    }
+                } else {
+                    // 其他类型的PLC读取Word
+                    rt = await plc_read_uint16_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']));
+                }
+
+            } else if (g_plc_data['NODES'][dev][key]['type'] == "DWord") {
+                if (protocol == "modbus") {
+                    // modbus类型的PLC读取DWord
+                    // modbus DWord 类型的地址结构有三种 holdingN inputN N
+                    // 如 001 holding001 input001 分别代表 保持寄存器001 保持寄存器001 和输入寄存器001
+                    // 默认使用保持寄存器
+                    addr = addr_src.toLowerCase();
+                    if (addr.startsWith("holding") || addr.startsWith("h")) {
+                        addr = addr.replace("holding", "");
+                        addr = addr.replace("h", "");
+                        rt = await plc_read_uint32_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    } else if (addr.startsWith("input") || addr.startsWith("i")) {
+                        addr = addr.replace("input", "");
+                        addr = addr.replace("i", "");
+                        rt = await plc_read_uint32_await(g_handler_plc[dev], "x=4;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    } else {
+                        addr = addr;
+                        rt = await plc_read_uint32_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    }
+                } else {
+                    // 其他类型的PLC读取DWord
+                    rt = await plc_read_uint32_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']));
+                }
+
+            } else if (g_plc_data['NODES'][dev][key]['type'] == "Float") {
+                if (protocol == "modbus") {
+                    // modbus类型的PLC读取Float
+                    // modbus Word 类型的地址结构有三种 holdingN inputN N
+                    // 如 001 holding001 input001 分别代表 保持寄存器001 保持寄存器001 和输入寄存器001
+                    // 默认使用保持寄存器
+                    addr = addr_src.toLowerCase();
+                    if (addr.startsWith("holding") || addr.startsWith("h")) {
+                        addr = addr.replace("holding", "");
+                        addr = addr.replace("h", "");
+                        rt = await plc_read_float_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    } else if (addr.startsWith("input") || addr.startsWith("i")) {
+                        addr = addr.replace("input", "");
+                        addr = addr.replace("i", "");
+                        rt = await plc_read_float_await(g_handler_plc[dev], "x=4;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    } else {
+                        addr = addr;
+                        rt = await plc_read_float_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    }
+                } else {
+                    // 其他类型的PLC读取Float
+                    rt = await plc_read_float_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']));
+                }
+            } else if (g_plc_data['NODES'][dev][key]['type'] == "Double") {
+                if (protocol == "modbus") {
+                    // modbus类型的PLC读取Double
+                    // modbus Word 类型的地址结构有三种 holdingN inputN N
+                    // 如 001 holding001 input001 分别代表 保持寄存器001 保持寄存器001 和输入寄存器001
+                    // 默认使用保持寄存器
+                    addr = addr_src.toLowerCase();
+                    if (addr.startsWith("holding") || addr.startsWith("h")) {
+                        addr = addr.replace("holding", "");
+                        addr = addr.replace("h", "");
+                        rt = await plc_read_double_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    } else if (addr.startsWith("input") || addr.startsWith("i")) {
+                        addr = addr.replace("input", "");
+                        addr = addr.replace("i", "");
+                        rt = await plc_read_double_await(g_handler_plc[dev], "x=4;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    } else {
+                        addr = addr;
+                        rt = await plc_read_double_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
+                    }
+                } else {
+                    // 其他类型的PLC读取Double
+                    rt = await plc_read_double_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']));
+                }
+            }
+            g_plc_data['NODES'][dev][key]['value'] = rt;
+        }
+
+        g_plc_status[dev]['online'] = true;
+    } catch (e) {
+        g_plc_status[dev]['online'] = false;
+        g_plc_status[dev]['errmsg'] = e.toString();
+        JsProxyAPI.loggerWrite("sync_plc_nodes: [" + dev + "] " + "[" + addr_src + "] " + e.toString().replace(/[\r\n]/g, "").replace(/\\/g, "\\\\"), "COMM", g_user_login);
+    }
+
 }
 
 // =======================================================================
@@ -1467,6 +1417,8 @@ async function sync_plc_nodes_await() {
 // 同步入口PLC数据
 // 异常状态给到 g_plc_status
 // 1 读取所有点位，包括PLC的IN和OUT的状态量
+
+/*
 async function process_loop_plc_data_sync() {
     while (1) {
         await sleep(100);
@@ -1474,13 +1426,43 @@ async function process_loop_plc_data_sync() {
         await sync_plc_nodes_await();
     }
 }
+*/
+
+async function process_loop_plc_data_sync(dev, guid) {
+    while (1) {
+        await sleep(100);
+        // 读取所有的opcua点位状态
+        if (g_sync_worker_lock[guid]['running'] == false) break;
+        await sync_plc_nodes_await(dev);
+    }
+}
+
+function load_sync_workers() {
+    let dev;
+    let guid = "";
+    g_sync_worker_lock = {};
+    for (dev in g_plc_data['DEVS']) {
+        guid = get_guid();
+        g_sync_worker_lock[guid] = {};
+        g_sync_worker_lock[guid]['dev'] = dev;
+        g_sync_worker_lock[guid]['running'] = true;
+        process_loop_plc_data_sync(dev, guid);
+    }
+}
+
+function unload_sync_workers() {
+    let guid
+    for (guid in g_sync_worker_lock) {
+        g_sync_worker_lock[guid]['running'] = false;
+    }
+}
 
 // 加载模块配置
 if (!load_modules_conf()) {
     alert("模块配置文件异常，无法启动程序!");
 } else {
-	// 读取settings配置
-	load_settings_conf();
+    // 读取settings配置
+    load_settings_conf();
     // 启动系统
     load_plc_conf();
     // 初始化PLC连接
@@ -1491,21 +1473,20 @@ if (!load_modules_conf()) {
     //初始化WebApi服务器
     init_webapi_server()
 
-	if(g_settings_conf!=null){
-		let s = g_settings_conf['DISPLAY_SCREEN'];
-		if(s==0 || s==1){
-			JsProxyAPI.setDesktopBounds(s);
-		}
-	}
+    if (g_settings_conf != null) {
+        let s = g_settings_conf['DISPLAY_SCREEN'];
+        if (s == 0 || s == 1) {
+            JsProxyAPI.setDesktopBounds(s);
+        }
+    }
     // JsProxyAPI.setDesktopBounds(0);
-    process_loop_plc_data_sync();
+    // process_loop_plc_data_sync();
+    load_sync_workers();
     // let pp = {};
     // pp['AAA'] = "KKKKK";
     // let f = Function('JsProxyAPI.showMessage(pp["AAA"]);')
     // eval('JsProxyAPI.showMessage(pp["AAA"]);');
     //f();
 }
-
-
 
 //# sourceURL=main.js

@@ -100,7 +100,7 @@
         "rowEmpty": "データなし",
         "device_setting": "デバイス構成",
         "node_configure": "ノード構成",
-        "refresh": "リフレッシュ",
+        "refresh": "更新",
         "apply": "適用",
         "title": "モニタリング",
         "subtitle": "機器の入口と出口への圧力",
@@ -118,7 +118,8 @@
         "delete": "デバイスの削除",
         "restart_server": "サービスの再開",
         "stop_server": "サービスの停止",
-        "start_server": "サービスの開始"
+        "start_server": "サービスの開始",
+        "filter":"フィルタ"
     },
     "page_qr_rfid_list_view": {
         "title": "QR / RFIDモニタリング",

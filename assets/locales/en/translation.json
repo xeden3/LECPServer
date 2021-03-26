@@ -120,7 +120,8 @@
         "delete": "Delete",
         "restart_server": "Restart Server",
         "stop_server": "Stop Server",
-        "start_server": "Start Server"
+        "start_server": "Start Server",
+        "filter": "filter"
     },
     "page_qr_rfid_list_view": {
         "title": "QR / RFID Viewer",

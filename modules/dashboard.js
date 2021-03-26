@@ -74,10 +74,10 @@ function init_apg_dashboard() {
                         if (type === "Byte") {
                             if (parseInt(e.target.value) % 2 !== 0) {
                                 // not odd
-                                if(parseInt(apg_last_val_of_length) > parseInt(e.target.value)){
+                                if (parseInt(apg_last_val_of_length) > parseInt(e.target.value)) {
                                     // --
                                     e.target.value = parseInt(e.target.value) - 1;
-                                }else{
+                                } else {
                                     // ++
                                     e.target.value = parseInt(e.target.value) + 1;
                                 }
@@ -276,6 +276,8 @@ function apg_data_refresh(dev) {
 
 // 选择设备，并且显示设备的配置和点位配置
 $("[name='page_dashboard_device_list']").on("click", "a", function () {
+    // 清除过滤的内容
+    $("[name='txt_dashboard_page_filter']").val("");
     // 将所有的a标签去掉active
     $("[name='page_dashboard_device_list'] a").removeClass("active");
     // 选择当前的设备
@@ -337,6 +339,8 @@ $("[name='btn_dashboard_page_apply']").on("click", async function () {
     try {
         let rt = await init_plc_device(plc_dev_apg_select);
         g_handler_plc[plc_dev_apg_select] = rt;
+        unload_sync_workers();
+        load_sync_workers();
     } catch (e) {
         alert("初始化PLC失败，请重试:" + plc_dev_apg_select + " -- " + e)
     }
@@ -536,7 +540,8 @@ $("[name='btn_dashboard_page_delete_device']").on("click", function () {
         // 重新加载所有设备
         plc_close_all();
         init_plc();
-
+        unload_sync_workers();
+        load_sync_workers();
         swal({
             title: i18next.t('alert.device') + ' [' + last_device_select + '] ' + i18next.t('alert.delete_successfully') + " !",
             text: ' ',
@@ -564,13 +569,32 @@ $("[name='btn_dashboard_page_restart_server']").on("click", function () {
         // 重新加载所有设备
         plc_close_all();
         init_plc();
-
+        unload_sync_workers();
+        load_sync_workers();
         swal({
             title: i18next.t('alert.restart_successfully') + " !",
             text: ' ',
             type: "success"
         });
     });
+});
+
+$("[name='txt_dashboard_page_filter']").on("keyup", function () {
+    let filter = $("[name='txt_dashboard_page_filter']").val();
+    // 显示全部
+    $('tr[id^="dt_process_start_page_start_page_$row_"]').show();
+    if (filter == "") return;
+
+    for (let r = 0; r < apg_dashboard.getRowCount(); r++) {
+        let name = apg_dashboard.getCtrlValue("name", r);
+        if (name.indexOf(filter) == -1) {
+            // 如果key不匹配，则不显示当前行
+            let unique = apg_dashboard.getUniqueIndex(r);
+            try {
+                $('tr[data-unique-index=' + unique + ']').hide();
+            } catch (e) { }
+        }
+    }
 });
 
 
@@ -632,7 +656,7 @@ setInterval(function () {
     for (let key in g_plc_data['NODES'][plc_dev_apg_select]) {
         // 找到 key 对应的行
         for (let r = 0; r < apg_dashboard.getRowCount(); r++) {
-            name = apg_dashboard.getCtrlValue("name", r);
+            let name = apg_dashboard.getCtrlValue("name", r);
             if (name == key) {
                 let v = g_plc_data['NODES'][plc_dev_apg_select][key]['value'];
                 apg_dashboard.setCtrlValue("value", r, v);

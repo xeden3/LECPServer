@@ -26,26 +26,32 @@
             <div class="portlet light ">
                 <div class="portlet-title">
                     <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
-                        <span class="caption-subject font-green-sharp bold uppercase" data-i18n="page_dashboard.devs">Devs </span>
-                        <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">click to view project list</span>
+                        <span class="caption-subject font-green-sharp bold uppercase"
+                            data-i18n="page_dashboard.devs">Devs </span>
+                        <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">click to view
+                            project list</span>
                     </div>
                     <div class="actions">
                         <div class="btn-group">
-                            <a class="btn green btn-circle btn-outline btn-sm todo-projects-config" href="javascript:;" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                            <a class="btn green btn-circle btn-outline btn-sm todo-projects-config" href="javascript:;"
+                                data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
                                 <i class="icon-settings"></i> &nbsp;
                                 <i class="fa fa-angle-down"></i>
                             </a>
                             <ul class="dropdown-menu pull-right">
                                 <li>
-                                    <a href="javascript:;" data-i18n="page_dashboard.new_device" name="btn_dashboard_page_new_device"> New Device </a>
+                                    <a href="javascript:;" data-i18n="page_dashboard.new_device"
+                                        name="btn_dashboard_page_new_device"> New Device </a>
                                 </li>
                                 <li>
-                                    <a href="javascript:;" data-i18n="page_dashboard.delete" name="btn_dashboard_page_delete_device"> Delete
+                                    <a href="javascript:;" data-i18n="page_dashboard.delete"
+                                        name="btn_dashboard_page_delete_device"> Delete
                                     </a>
                                 </li>
                                 <li class="divider"> </li>
                                 <li>
-                                    <a href="javascript:;" data-i18n="page_dashboard.restart_server" name="btn_dashboard_page_restart_server"> Restart Server
+                                    <a href="javascript:;" data-i18n="page_dashboard.restart_server"
+                                        name="btn_dashboard_page_restart_server"> Restart Server
                                     </a>
                                 </li>
                                 <!--
@@ -104,8 +110,8 @@
                     <div class="portlet-body form">
                         <form class="form-horizontal" role="form">
                             <div class="form-body">
-                                    <div class="form-group" name="page_dashboard_device_settings">
-                                        <!--
+                                <div class="form-group" name="page_dashboard_device_settings">
+                                    <!--
                                         <div class="col-lg-4 col-xs-4 col-sm-4">
                                             <label class="col-md-3 control-label">Block Help</label>
                                             <div class="col-md-9">
@@ -113,7 +119,7 @@
                                             </div>
                                         </div>
                                         -->
-                                    </div>                                
+                                </div>
                             </div>
 
                         </form>
@@ -125,14 +131,28 @@
             <div class="col-lg-12 col-xs-12 col-sm-12">
                 <div class="portlet light">
                     <div class="portlet-title">
-                        <div class="caption">
-                            <span class="caption-subject bold uppercase font-dark"
-                                data-i18n="page_dashboard.node_configure">Node Configure</span>
+                        <div class="caption" style="width: 80%;">
+                            <div class="col-md-4">
+                                <span class="caption-subject bold uppercase font-dark"
+                                    data-i18n="page_dashboard.node_configure">Node Configure</span>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <h5 class="col-md-3 control-label"
+                                        data-i18n="page_dashboard.filter">Filter</h5>
+                                    <div class="col-md-9">
+                                        <input type="text" class="form-control input-inline input-medium"
+                                            placeholder="" name="txt_dashboard_page_filter">
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                         <div class="actions">
                             <a href="javascript:;" class="btn btn-sm btn-circle default easy-pie-chart-reload"
                                 name="btn_dashboard_page_refresh">
-                                <i class="fa fa-repeat"></i> <span data-i18n="page_dashboard.refresh">Refresh</span> </a>
+                                <i class="fa fa-repeat"></i> <span data-i18n="page_dashboard.refresh">Refresh</span>
+                            </a>
                             <a href="javascript:;" class="btn btn-sm btn-circle default easy-pie-chart-reload"
                                 name="btn_dashboard_page_apply">
                                 <i class="fa fa-check"></i> <span data-i18n="page_dashboard.apply">Apply</span> </a>
@@ -140,7 +160,8 @@
                     </div>
                     <div class="portlet-body">
                         <div>
-                            <table id="dt_process_start_page_start_page" border="1" style="width: 100% !important;"></table>
+                            <table id="dt_process_start_page_start_page" border="1" style="width: 100% !important;">
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -149,6 +170,6 @@
     </div>
 
 
-    
-    
+
+
 </div>

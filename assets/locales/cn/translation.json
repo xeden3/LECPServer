@@ -118,7 +118,8 @@
         "delete": "删除设备",
         "restart_server": "重启服务",
         "stop_server": "停止服务",
-        "start_server": "启动服务"
+        "start_server": "启动服务",
+        "filter": "过滤"
     },
     "page_qr_rfid_list_view": {
         "title": "QR / RFID 监视",

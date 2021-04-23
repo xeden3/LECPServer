@@ -1,5 +1,5 @@
 // global value
-var g_version = "v1.0.21";
+var g_version = "v1.0.22";
 $("[name='lb_version']").html("2020 &copy; LECPServer By Leanboard Tech Ltd &nbsp;|&nbsp; " + g_version + "  &nbsp;");
 JsProxyAPI.setTitle("LECPServer " + g_version)
 JsProxyAPI.setNotifyIcon("logo.ico");
@@ -1140,7 +1140,7 @@ function plc_close(handler) {
 // Http 通讯
 function http_request_await(url, data) {
     return new Promise((resolve, reject) => {
-        JsProxyAPI.loggerWrite("http_request: [" + url + "] " + JSON.stringify(data), "COMM", g_user_login);
+        JsProxyAPI.loggerWrite("http_request: [" + url + "] " + JSON.stringify(data).replace(/\\/g, "").replace(/\"/g, "\'"), "COMM", g_user_login);
         $.ajax({
             url: url,
             data: JSON.stringify(data),
@@ -1148,11 +1148,11 @@ function http_request_await(url, data) {
             type: 'POST',
             timeout: 2000,
             success: function (response) {
-                JsProxyAPI.loggerWrite("http_request response: [" + url + "] " + response, "COMM", g_user_login);
+                JsProxyAPI.loggerWrite("http_request response: [" + url + "] " + JSON.stringify(response).replace(/\\/g, "").replace(/\"/g, "\'"), "COMM", g_user_login);
                 resolve(response);
             },
             error: function (x, t, m) {
-                JsProxyAPI.loggerWrite("http_request response Err: [" + url + "] " + JSON.stringify(data) + " ERR" + t, "COMM", g_user_login);
+                JsProxyAPI.loggerWrite("http_request response Err: [" + url + "] " + JSON.stringify(data).replace(/\\/g, "").replace(/\"/g, "\'") + " ERR" + t, "COMM", g_user_login);
                 if (t === "timeout") {
                     reject(t);
                 } else {
@@ -1286,18 +1286,18 @@ async function sync_plc_nodes_await(dev) {
                     if (addr.startsWith("holding") || addr.startsWith("h")) {
                         addr = addr.replace("holding", "");
                         addr = addr.replace("h", "");
-                        rt = await plc_read_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']) / 2);
+                        rt = await plc_read_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']) );
                     } else if (addr.startsWith("input") || addr.startsWith("i")) {
                         addr = addr.replace("input", "");
                         addr = addr.replace("i", "");
-                        rt = await plc_read_await(g_handler_plc[dev], "x=4;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']) / 2);
+                        rt = await plc_read_await(g_handler_plc[dev], "x=4;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']) );
                     } else {
                         addr = addr;
-                        rt = await plc_read_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']) / 2);
+                        rt = await plc_read_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']) );
                     }
                 } else {
                     // 其他类型的PLC读取Byte
-                    rt = await plc_read_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']) / 2);
+                    rt = await plc_read_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']) );
                 }
 
             } else if (g_plc_data['NODES'][dev][key]['type'] == "Word") {

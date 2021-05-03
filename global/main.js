@@ -1,5 +1,5 @@
 // global value
-var g_version = "v1.0.22";
+var g_version = "v1.0.23";
 $("[name='lb_version']").html("2020 &copy; LECPServer By Leanboard Tech Ltd &nbsp;|&nbsp; " + g_version + "  &nbsp;");
 JsProxyAPI.setTitle("LECPServer " + g_version)
 JsProxyAPI.setNotifyIcon("logo.ico");
@@ -354,18 +354,27 @@ function init_webapi_server() {
             }
 
             // 如果PLC离线则返回异常
-            let dev = plc_get_node_dev(j['node'], g_plc_data);
-            if (dev == null || typeof (g_plc_status[dev]) == "undefined") {
-                return JSON.stringify({ "errcode": 4012, "errmsg": "Device " + dev + " is not exist" });
+            if (j['action'] == "plc_read_node") {
+
             }
-            if (g_plc_status[dev]['online'] == false) {
-                return JSON.stringify({ "errcode": 4013, "errmsg": "Device " + dev + " is offline" });
+
+            if (j['action'] == "plc_read_nodes") {
+
             }
-            dev = null;
 
             // 处理 plc_read_node
             if (j['action'] == "plc_read_node") {
                 console.time("A");
+                
+                let dev = plc_get_node_dev(j['node'], g_plc_data);
+                if (dev == null || typeof (g_plc_status[dev]) == "undefined") {
+                    return JSON.stringify({ "errcode": 4012, "errmsg": "Device " + dev + " is not exist" });
+                }
+                if (g_plc_status[dev]['online'] == false) {
+                    return JSON.stringify({ "errcode": 4013, "errmsg": "Device " + dev + " is offline" });
+                }
+                dev = null;
+
                 let rt = plc_read_node(j['node'], g_plc_data);
                 if (rt == null) {
                     return JSON.stringify({ "errcode": 4055, "errmsg": "Node is not correct", "rtval": null });
@@ -391,6 +400,21 @@ function init_webapi_server() {
 
                 for (let i in j['node']) {
                     let node = j['node'][i];
+
+                    // 如果PLC离线则返回异常
+                    let dev;
+                    for (let n in j['node']) {
+                        dev = plc_get_node_dev(node, g_plc_data);
+                        break;
+                    }
+                    if (dev == null || typeof (g_plc_status[dev]) == "undefined") {
+                        return JSON.stringify({ "errcode": 4012, "errmsg": "Device " + dev + " is not exist" });
+                    }
+                    if (g_plc_status[dev]['online'] == false) {
+                        return JSON.stringify({ "errcode": 4013, "errmsg": "Device " + dev + " is offline" });
+                    }
+                    dev = null;
+
                     let rt = plc_read_node(node, g_plc_data);
                     if (rt == null) {
                         rts[i] = null;

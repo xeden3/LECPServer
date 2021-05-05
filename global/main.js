@@ -1,5 +1,5 @@
 // global value
-var g_version = "v1.0.23";
+var g_version = "v1.0.24 BETA";
 $("[name='lb_version']").html("2020 &copy; LECPServer By Leanboard Tech Ltd &nbsp;|&nbsp; " + g_version + "  &nbsp;");
 JsProxyAPI.setTitle("LECPServer " + g_version)
 JsProxyAPI.setNotifyIcon("logo.ico");
@@ -138,8 +138,8 @@ function Queue() {
 }
 
 function get_guid() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
     });
 }
@@ -365,7 +365,7 @@ function init_webapi_server() {
             // 处理 plc_read_node
             if (j['action'] == "plc_read_node") {
                 console.time("A");
-                
+
                 let dev = plc_get_node_dev(j['node'], g_plc_data);
                 if (dev == null || typeof (g_plc_status[dev]) == "undefined") {
                     return JSON.stringify({ "errcode": 4012, "errmsg": "Device " + dev + " is not exist" });
@@ -399,28 +399,26 @@ function init_webapi_server() {
                     rts.push(null);
 
                 for (let i in j['node']) {
+                    let err = false;
                     let node = j['node'][i];
-
-                    // 如果PLC离线则返回异常
-                    let dev;
-                    for (let n in j['node']) {
-                        dev = plc_get_node_dev(node, g_plc_data);
-                        break;
-                    }
+                    let dev = plc_get_node_dev(node, g_plc_data);
+                    // 如果PLC离线则返回null,如果节点名称不对，则返回异常
                     if (dev == null || typeof (g_plc_status[dev]) == "undefined") {
-                        return JSON.stringify({ "errcode": 4012, "errmsg": "Device " + dev + " is not exist" });
+                        return JSON.stringify({ "errcode": 4012, "errmsg": "Node: " + node + " is not exist" });
                     }
                     if (g_plc_status[dev]['online'] == false) {
-                        return JSON.stringify({ "errcode": 4013, "errmsg": "Device " + dev + " is offline" });
+                        err = true;
+                        // return JSON.stringify({ "errcode": 4013, "errmsg": "Device " + dev + " is offline" });
                     }
                     dev = null;
-
                     let rt = plc_read_node(node, g_plc_data);
-                    if (rt == null) {
+                    if (rt == null || err) {
                         rts[i] = null;
-                        return JSON.stringify({ "errcode": 4055, "errmsg": "Node [" + node + "] is not exists", "rtval": rts });
+                        // return JSON.stringify({ "errcode": 4055, "errmsg": "Node [" + node + "] is not exists", "rtval": rts });
+                    }else{
+                        rts[i] = rt;
                     }
-                    rts[i] = rt;
+                    
                 }
                 return JSON.stringify({ "errcode": 0, "errmsg": "", "rtval": rts });
             }
@@ -1310,18 +1308,18 @@ async function sync_plc_nodes_await(dev) {
                     if (addr.startsWith("holding") || addr.startsWith("h")) {
                         addr = addr.replace("holding", "");
                         addr = addr.replace("h", "");
-                        rt = await plc_read_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']) );
+                        rt = await plc_read_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
                     } else if (addr.startsWith("input") || addr.startsWith("i")) {
                         addr = addr.replace("input", "");
                         addr = addr.replace("i", "");
-                        rt = await plc_read_await(g_handler_plc[dev], "x=4;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']) );
+                        rt = await plc_read_await(g_handler_plc[dev], "x=4;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
                     } else {
                         addr = addr;
-                        rt = await plc_read_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']) );
+                        rt = await plc_read_await(g_handler_plc[dev], "x=3;" + addr, parseInt(g_plc_data['NODES'][dev][key]['length']));
                     }
                 } else {
                     // 其他类型的PLC读取Byte
-                    rt = await plc_read_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']) );
+                    rt = await plc_read_await(g_handler_plc[dev], g_plc_data['NODES'][dev][key]['addr'], parseInt(g_plc_data['NODES'][dev][key]['length']));
                 }
 
             } else if (g_plc_data['NODES'][dev][key]['type'] == "Word") {

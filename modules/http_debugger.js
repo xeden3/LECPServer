@@ -60,7 +60,7 @@ function save_debugger_history_data(data) {
     debugger_history_data.push(data);
     // 保留最新1000个记录
     if (debugger_history_data.length > 50) {
-        debugger_history_data.pop();
+        debugger_history_data.shift();
     }
     JsProxyAPI.fileWrite("./debugger_history_data.dat", JSON.stringify(debugger_history_data, null, "\t"));
 }

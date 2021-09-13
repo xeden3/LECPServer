@@ -43,6 +43,9 @@
     <link href="../assets/global/plugins/bootstrap-sweetalert/sweetalert.css" rel="stylesheet" type="text/css" />
     <link href="../assets/global/plugins/datatables/datatables.min.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="../assets/global/plugins/bootstrap-toastr/toastr.min.css">
+    <link href="../assets/global/plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css" rel="stylesheet"
+        type="text/css" />
+    <link href="../assets/global/plugins/bootstrap-modal/css/bootstrap-modal.css" rel="stylesheet" type="text/css" />
 
     <script src="../assets/global/flags/iconfont.js"></script>
 
@@ -143,6 +146,12 @@
             border-color: #666666;
             background-color: #ffffff;
             white-space: nowrap;
+        }
+
+        .table-sm .form-control-input-readonly input{
+            background-color: lightgrey;
+            pointer-events: none; 
+            border: 1px solid grey;
         }
 
         .table-sm .form-control-sm {
@@ -254,7 +263,8 @@
                                 </li>
                                 <li>
                                     <a href="#" data-target="language">
-                                        <i class="fa fa-language"></i> <span data-i18n="page_left_menu.language"> Language
+                                        <i class="fa fa-language"></i> <span data-i18n="page_left_menu.language">
+                                            Language
                                         </span>
                                     </a>
                                 </li>
@@ -364,12 +374,19 @@
                             </a>
                         </li>
 
+                        <li class="nav-item">
+                            <a href="javascript:;" class="nav-link nav-toggle" data-target="mqtt_client">
+                                <i class="fa fa-chain"></i>
+                                <span class="title" data-i18n="page_left_menu.mqtt_client">MQTT Client</span>
+                            </a>
+                        </li>
+
                         <li class="heading">
                             <h3 class="uppercase" data-i18n="page_left_menu.system">System</h3>
                         </li>
                         <li class="nav-item">
                             <a href="javascript:;" class="nav-link nav-toggle" data-target="http_debugger">
-                                <i class="icon-docs"></i>
+                                <i class="fa fa-bug"></i>
                                 <span class="title" data-i18n="page_left_menu.http_debugger">HTTP Debugger</span>
                             </a>
                         </li>
@@ -581,10 +598,10 @@
                 lng = "";
                 if (window.localStorage)
                     lng = localStorage["lng"];
-                if (typeof (lng) == "undefined"){
+                if (typeof (lng) == "undefined") {
                     lng = "cn";
                 }
-                if (lng == ""){
+                if (lng == "") {
                     lng = "cn";
                 }
                 i18next.use(i18nextXHRBackend);

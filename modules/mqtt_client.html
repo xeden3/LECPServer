@@ -1,0 +1,278 @@
+<!-- BEGIN PAGE HEADER-->
+<!-- BEGIN PAGE BAR -->
+<!--
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+        </li>
+        <li>
+            <span></span>
+        </li>
+    </ul>
+</div>
+-->
+<!-- END PAGE BAR -->
+<!-- BEGIN PAGE TITLE-->
+<div name="main_page_mqtt_client">
+    <!--
+    <h1 class="page-title"><span data-i18n="page_mqtt_client.title">mqtt_client</span>
+        <small><span data-i18n="page_mqtt_client.subtitle">for pressure forming equipment</span></small>
+    </h1>
+    -->
+    <!-- END PAGE TITLE-->
+    <!-- END PAGE HEADER-->
+    <div class="row">
+        <div class="col-md-2">
+            <div class="portlet light ">
+                <div class="portlet-title">
+                    <div class="caption" data-toggle="collapse" data-target=".todo-project-list-content">
+                        <span class="caption-subject font-green-sharp bold uppercase"
+                            data-i18n="page_mqtt_client.devs">Devs </span>
+                        <span class="caption-helper visible-sm-inline-block visible-xs-inline-block">click to view
+                            project list</span>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group">
+                            <a class="btn green btn-circle btn-outline btn-sm todo-projects-config" href="javascript:;"
+                                data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                                <i class="icon-settings"></i> &nbsp;
+                                <i class="fa fa-angle-down"></i>
+                            </a>
+                            <ul class="dropdown-menu pull-right">
+                                <li>
+                                    <a href="javascript:;" data-i18n="page_mqtt_client.new_device"
+                                        name="btn_mqtt_client_page_new_device"> New Device </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:;" data-i18n="page_mqtt_client.delete"
+                                        name="btn_mqtt_client_page_delete_device"> Delete
+                                    </a>
+                                </li>
+                                <li class="divider"> </li>
+                                <li>
+                                    <a href="javascript:;" data-i18n="page_mqtt_client.restart_server"
+                                        name="btn_mqtt_client_page_restart_server"> Restart Server
+                                    </a>
+                                </li>
+                                <!--
+                                <li>
+                                    <a href="javascript:;" data-i18n="page_mqtt_client.disable"> Disable
+                                    </a>
+                                </li>
+                                -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="portlet-body todo-project-list-content">
+                    <div class="todo-project-list">
+                        <ul class="nav nav-stacked profile-nav" name="page_mqtt_client_device_list">
+                            <!--
+                            <li>
+                                <a href="javascript:;" > AirAsia Ads </a>
+                            </li>
+                            <li>
+                                <a href="javascript:;"> HSBC Promo </a>
+                            </li>
+                            <li class="active">
+                                <a href="javascript:;"> GlobalEx</a>
+                            </li>
+                            <li>
+                                <a href="javascript:;"> Empire City </a>
+                            </li>
+                            <li>
+                                <a href="javascript:;"> AirAsia Ads </a>
+                            </li>
+                            <li>
+                                <a href="javascript:;"> Loop Inc Promo </a>
+                            </li>
+                            -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-10" style="padding-left: 0px;padding-right: 0px;">
+            <!--PLC配置-->
+            <div class="col-lg-12 col-xs-12 col-sm-12">
+                <div class="portlet light">
+                    <div class="portlet-title">
+                        <div class="caption">
+                            <span class="caption-subject bold uppercase font-dark"
+                                data-i18n="page_mqtt_client.device_setting">Device Setting</span>
+                        </div>
+                        <div class="actions">
+                            <a href="javascript:;" class="btn btn-sm btn-circle default easy-pie-chart-reload"
+                                name="btn_mqtt_client_page_apply">
+                                <i class="fa fa-check"></i> <span data-i18n="page_mqtt_client.apply">Apply</span> </a>
+                        </div>
+                    </div>
+                    <div class="portlet-body form">
+                        <form class="form-horizontal" role="form">
+                            <div class="form-body">
+                                <div class="form-group" name="page_mqtt_client_device_settings">
+                                    <div class="col-lg-4 col-xs-4 col-sm-4"
+                                        style="padding-left: 0px;padding-right: 0px; padding-bottom: 5px;"><label
+                                            class="col-md-5 control-label">MQTT_DRIVER</label>
+                                        <div class="col-md-7"><select class="form-control"
+                                                name="mqtt_client_page_input_settings" data-tags="MQTT_DRIVER">
+                                                <option value="mqtt_client">MQTT Client</option>
+                                            </select></div>
+                                    </div>
+                                    <div class="col-lg-4 col-xs-4 col-sm-4"
+                                        style="padding-left: 0px;padding-right: 0px; padding-bottom: 5px;"><label
+                                            class="col-md-5 control-label">IP</label>
+                                        <div class="col-md-7"><input type="text" name="mqtt_client_page_input_settings"
+                                                data-tags="IP" class="form-control" placeholder="IP" value="127.0.0.1">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-xs-4 col-sm-4"
+                                        style="padding-left: 0px;padding-right: 0px; padding-bottom: 5px;"><label
+                                            class="col-md-5 control-label">PORT</label>
+                                        <div class="col-md-7"><input type="text" name="mqtt_client_page_input_settings"
+                                                data-tags="PORT" class="form-control" placeholder="PORT" value="502">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-xs-4 col-sm-4"
+                                        style="padding-left: 0px;padding-right: 0px; padding-bottom: 5px;"><label
+                                            class="col-md-5 control-label">ClIENT_ID</label>
+                                        <div class="col-md-7"><input type="text" name="mqtt_client_page_input_settings"
+                                                data-tags="ClIENT_ID" class="form-control" placeholder="ClIENT_ID"
+                                                value=""></div>
+                                    </div>
+                                    <div class="col-lg-4 col-xs-4 col-sm-4"
+                                        style="padding-left: 0px;padding-right: 0px; padding-bottom: 5px;"><label
+                                            class="col-md-5 control-label">TOPIC</label>
+                                        <div class="col-md-7"><input type="text" name="mqtt_client_page_input_settings"
+                                                data-tags="TOPIC" class="form-control" placeholder="TOPIC" value="">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-xs-4 col-sm-4"
+                                        style="padding-left: 0px;padding-right: 0px; padding-bottom: 5px;"><label
+                                            class="col-md-5 control-label">SCAN_RATE</label>
+                                        <div class="col-md-7"><input type="text" name="mqtt_client_page_input_settings"
+                                                data-tags="SCAN_RATE" class="form-control" placeholder="SCAN_RATE" value="1000">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-xs-4 col-sm-4"
+                                        style="padding-left: 0px;padding-right: 0px; padding-bottom: 5px;"><label
+                                            class="col-md-5 control-label">LAST_SCAN</label>
+                                        <div class="col-md-7"><input type="text" name="mqtt_client_page_input_settings"
+                                                data-tags="LAST_SCAN" class="form-control" placeholder="LAST_SCAN" value="">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-xs-4 col-sm-4"
+                                        style="padding-left: 0px;padding-right: 0px; padding-bottom: 5px; display: none;"><label
+                                            class="col-md-5 control-label">USERNAME</label>
+                                        <div class="col-md-7"><input type="text" name="mqtt_client_page_input_settings"
+                                                data-tags="USERNAME" class="form-control" placeholder="USERNAME"
+                                                value=""></div>
+                                    </div>
+                                    <div class="col-lg-4 col-xs-4 col-sm-4"
+                                        style="padding-left: 0px;padding-right: 0px; padding-bottom: 5px; display: none;"><label
+                                            class="col-md-5 control-label">PASSWORD</label>
+                                        <div class="col-md-7"><input type="password"
+                                                name="mqtt_client_page_input_settings" data-tags="PASSWORD"
+                                                class="form-control" placeholder="PASSWORD" value=""></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!--PLC点位配置-->
+            <div class="col-lg-12 col-xs-12 col-sm-12">
+                <div class="portlet light">
+                    <div class="portlet-title">
+                        <div class="caption" style="width: 60%;">
+                            <div class="col-md-4">
+                                <span class="caption-subject bold uppercase font-dark"
+                                    data-i18n="page_mqtt_client.node_configure">Node Configure</span>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <h5 class="col-md-3 control-label" data-i18n="page_mqtt_client.filter">Filter</h5>
+                                    <div class="col-md-9">
+                                        <input type="text" class="form-control input-inline input-medium" placeholder=""
+                                            name="txt_mqtt_client_page_filter">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="actions">
+                            <a href="javascript:;" class="btn btn-sm btn-circle default easy-pie-chart-reload"
+                                name="btn_mqtt_client_page_addnew">
+                                <i class="fa fa-plus"></i> <span data-i18n="page_mqtt_client.addnew">AddNew</span>
+                            </a>
+                            <!--
+                            <a href="javascript:;" class="btn btn-sm btn-circle default easy-pie-chart-reload"
+                                name="btn_mqtt_client_page_refresh">
+                                <i class="fa fa-repeat"></i> <span data-i18n="page_mqtt_client.refresh">Refresh</span>
+                            </a>
+                            -->
+                            <a href="javascript:;" class="btn btn-sm btn-circle default easy-pie-chart-reload"
+                                name="btn_mqtt_client_page_apply">
+                                <i class="fa fa-check"></i> <span data-i18n="page_mqtt_client.apply">Apply</span> </a>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <div>
+                            <table id="dt_mqtt_client_item_list" border="1" style="width: 100% !important;">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设备配置 -->
+    <div id="dlg_page_mqtt_addnew" class="modal fade" tabindex="-1" style="top: 100px; width:800px">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+            <h4 class="modal-title" data-i18n="page_mqtt_client.device_setting">设备配置</h4>
+        </div>
+        <div class="modal-body">
+            <p data-i18n="page_mqtt_client.pls_select_nodes_you_need"> 选择需要转传的点位. </p>
+            <div class="row">
+                <div class="col-md-4" style="padding-right:0px;">
+                    <div class="form-group">
+                        <div class="col-md-12" style="padding-left:0px;padding-right:0px;">
+                            <select class="form-control" style="line-height: 200px;height:200px;"
+                                name="sel_page_mqtt_device_select" size="1">
+                                <option>Option 1</option>
+                                <option>Option 2</option>
+                                <option>Option 3</option>
+                                <option>Option 4</option>
+                                <option>Option 5</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8" style="padding-left:0px;">
+                    <div class="form-group">
+                        <div class="col-md-12" style="padding-left:0px;padding-right:0px;">
+                            <select multiple="" class="form-control" style="line-height: 200px;height:200px;"
+                                name="sel_page_mqtt_nodes_select">
+                                <option>Option 1</option>
+                                <option>Option 2</option>
+                                <option>Option 3</option>
+                                <option>Option 4</option>
+                                <option>Option 5</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" data-dismiss="modal" class="btn btn-outline dark" data-i18n="page_mqtt_client.close">Close</button>
+            <button type="button" class="btn green" name="btn_page_mqtt_apply" data-i18n="page_mqtt_client.apply">Apply</button>
+        </div>
+    </div>
+
+</div>

@@ -1,5 +1,5 @@
 // global value
-var g_version = "v1.0.24 BETA";
+var g_version = "v1.1.08 BETA";
 $("[name='lb_version']").html("2020 &copy; LECPServer By Leanboard Tech Ltd &nbsp;|&nbsp; " + g_version + "  &nbsp;");
 JsProxyAPI.setTitle("LECPServer " + g_version)
 JsProxyAPI.setNotifyIcon("logo.ico");
@@ -8,10 +8,12 @@ JsProxyAPI.setNotifyTitle("LECPServer");
 var g_plc_data = null; // plc当前数据
 var g_user_login = ""; // 当前登陆用户
 var g_handler_plc = {};
+var g_handler_mqtt_client = {};
 var g_handler_db = null;
 var g_modules_conf = null;
 var g_settings_conf = null;
 var g_sync_worker_lock = null;
+var g_mqtt_client_data = null;
 
 // PLC的返回状态，包括入口和出口，可以分别进行报警和显示
 // Online和Offline只看入口即可
@@ -53,8 +55,6 @@ function load_modules_conf() {
     }
 }
 
-
-
 // 读取 plc.conf 配置信息
 function load_plc_conf() {
     let s = JsProxyAPI.fileRead("./plc.conf");
@@ -73,6 +73,26 @@ function load_plc_conf() {
         return false;
     }
 }
+
+// 读取 mqtt.conf 配置信息
+function load_mqtt_conf() {
+    let s = JsProxyAPI.fileRead("./mqtt.conf");
+    if (s == "") {
+        alert("mqtt.conf " + i18next.t('main.does_not_exist'));
+        g_mqtt_client_data = { "NODES": {}, "DEVS": {}, "WEBAPI": { "PORT": 8088 } }
+        JsProxyAPI.fileWrite("mqtt.conf", JSON.stringify(g_mqtt_client_data, null, "\t"));
+        return false;
+    }
+
+    try {
+        g_mqtt_client_data = JSON.parse(s);
+        return true;
+    } catch (e) {
+        alert(i18next.t('main.incorrect_format_of_file') + " mqtt.conf:" + e);
+        return false;
+    }
+}
+
 
 function deepCopy(target) {
     let copyed_objs = [];//此数组解决了循环引用和相同引用的问题，它存放已经递归到的目标对象 
@@ -148,6 +168,23 @@ function get_guid() {
 // =====================  全局函数们  =====================================
 // =======================================================================
 // =======================================================================
+
+// 数组判定是否一致
+function equar(a, b) {
+    // 判断数组的长度
+    if (a.length !== b.length) {
+        return false
+    } else {
+        // 循环遍历数组的值进行比较
+        for (let i = 0; i < a.length; i++) {
+            if (a[i] !== b[i]) {
+                return false
+            }
+        }
+        return true;
+    }
+}
+
 
 // 延时函数
 function sleep(time) {
@@ -283,10 +320,81 @@ function insert_dashboard_data(msg, type = "default", zone = "entry") {
 // =======================================================================
 // =======================================================================
 
+// 初始化MQTT服务器
+function init_mqtt_server() {
+    if (g_mqtt_client_data['MQTTSERVER']['START'] == true) {
+        let r = JsProxyAPI.mqttServerStart(g_mqtt_client_data['MQTTSERVER']['PORT'],
+            function (success, handler) {
+                console.log(success, handler);
+            },
+            function (clientId, topic, payload) {
+                console.log(clientId, topic, payload);
+            }
+        );
+    }
+}
 
 // 初始化 WebAPI 服务器
 function init_webapi_server() {
     // 获取点位的值
+
+    function findStrIndex(str, cha, num) {
+        let x = str.indexOf(cha);
+        for (let i = 0; i < num; i++) {
+            x = str.indexOf(cha, x + 1);
+        }
+        return x;
+    }
+
+
+    function plc_get_node_dev(key, plc_data) {
+        // 查询key是否存在
+        let dot_count = (key.match(/\./g) || []).length;
+        if (dot_count < 2) {
+            return null;
+        }
+        let a = key.split(".", 2);
+        let root = a[0];
+        let dev = a[1];
+        let node = key.substr(key.length - (key.length - findStrIndex(key, ".", 1) - 1));
+
+        if (root != "NODES") {
+            return null;
+        }
+
+        if (typeof (plc_data['NODES'][dev]) == "undefined") {
+            return null;
+        } else {
+            return dev;
+        }
+    }
+
+    function plc_read_node(key, plc_data, ch_node = "value") {
+        // 查询key是否存在
+        let dot_count = (key.match(/\./g) || []).length;
+        if (dot_count < 2) {
+            return null;
+        }
+        let a = key.split(".", 2);
+        let root = a[0];
+        let dev = a[1];
+        let node = key.substr(key.length - (key.length - findStrIndex(key, ".", 1) - 1));
+
+        if (root != "NODES") {
+            return null;
+        }
+
+        if (typeof (plc_data['NODES'][dev]) == "undefined") {
+            return null;
+        }
+
+        if (typeof (plc_data['NODES'][dev][node]) == "undefined") {
+            return null;
+        }
+
+        return plc_data['NODES'][dev][node][ch_node];
+    }
+    /*
     function plc_read_node(key, plc_data, ch_node = "value") {
         // 查询key是否存在
         try {
@@ -325,6 +433,7 @@ function init_webapi_server() {
             return null;
         }
     }
+    */
 
     let r = JsProxyAPI.webAPIStart(g_plc_data['WEBAPI']['PORT'],
         function (success, handler) {
@@ -415,10 +524,10 @@ function init_webapi_server() {
                     if (rt == null || err) {
                         rts[i] = null;
                         // return JSON.stringify({ "errcode": 4055, "errmsg": "Node [" + node + "] is not exists", "rtval": rts });
-                    }else{
+                    } else {
                         rts[i] = rt;
                     }
-                    
+
                 }
                 return JSON.stringify({ "errcode": 0, "errmsg": "", "rtval": rts });
             }
@@ -446,6 +555,10 @@ function init_webapi_server() {
                 let dev = plc_get_node_dev(node, g_plc_data);
                 let done = 0;
 
+                if (g_plc_status[dev]['online'] == false) {
+                    return JSON.stringify({ "errcode": 4013, "errmsg": "Device " + dev + " is offline" });
+                }
+
                 // 如果是模拟驱动模式，直接写入本buffer值
                 if (g_plc_data['DEVS'][dev]['PLC_DRIVER'] == "simulation") {
                     let rt = plc_read_node(node, g_plc_data, "addr");
@@ -453,7 +566,8 @@ function init_webapi_server() {
                         return JSON.stringify({ "errcode": 4057, "errmsg": "Node [" + node + "] is not exists", "rtval": rt });
                     }
                     let a = node.split(".");
-                    g_plc_data['NODES'][dev][a[a.length - 1]]['value'] = j['value'];
+                    let addr = node.replace(a[0] + "." + a[1] + ".", "");
+                    g_plc_data['NODES'][dev][addr]['value'] = j['value'];
                     return JSON.stringify({ "errcode": 0, "errmsg": "" });
                 }
 
@@ -917,7 +1031,7 @@ async function init_plc_device(dev) {
         return;
 
     return new Promise((resolve, reject) => {
-        // 欧姆龙fins协议
+        // 按照不同协议类型来进行连接
         let dd = g_modules_conf[d['PLC_DRIVER']];
         let type = dd['TYPE'];
         let string_reverse = false;
@@ -1487,6 +1601,8 @@ if (!load_modules_conf()) {
     load_settings_conf();
     // 启动系统
     load_plc_conf();
+    // 读取mqtt配置
+    load_mqtt_conf();
     // 初始化PLC连接
     init_plc();
     // 初始化数据库
@@ -1494,6 +1610,9 @@ if (!load_modules_conf()) {
 
     //初始化WebApi服务器
     init_webapi_server()
+
+    //初始化mqtt服务器
+    init_mqtt_server();
 
     if (g_settings_conf != null) {
         let s = g_settings_conf['DISPLAY_SCREEN'];

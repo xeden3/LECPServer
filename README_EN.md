@@ -18,95 +18,93 @@ Bug reports: https://github.com/xeden3/LECPServer/issues
 
 Download: https://github.com/xeden3/LECPServer/releases/
 
-## 样例视频
-> LECPServer连接并控制施耐德M200系列PLC [第一章] https://www.bilibili.com/video/BV1bK4y1Q7o8
+## Example Video
+> LECPServer connects and controls Schneider M200 series PLC [Chapter 1] https://www.bilibili.com/video/BV1bK4y1Q7o8
 
-> LECPServer连接并控制施耐德M200系列PLC [第二章] https://www.bilibili.com/video/BV1yA411T71C
+> LECPServer connects and controls Schneider M200 series PLC [Chapter 2] https://www.bilibili.com/video/BV1yA411T71C
 
 
-## LECPServer 环境要求
+## LECPServer Environment Requirements
 
-操作系统：
+Operating system：
 
-* Windows 10 x64 (专业版和企业版)
-* Windows 8.1 x64 (Windows 8、专业版和企业版)
-* Windows 8 x64 (Windows 8、专业版和企业版)
-* Windows 7 x64 (专业版、旗舰版和企业版)
+* Windows 10 x64 (Pro and Enterprise)
+* Windows 8.1 x64 (Windows 8, Professional and Enterprise)
+* Windows 8 x64 (Windows 8, Professional and Enterprise)
+* Windows 7 x64 (Pro, Ultimate and Enterprise)
 * Windows Server 2016 x64
 * Windows Server 2012 x64 R2
 * Windows Server 2012 x64
 
-系统最低配置如下:
+The minimum system configuration is as follows:
 
-* INTEL I3 或同等级别处理器
-* 4GB 内存 (遵从操作系统建议)
-* 500 MB 可用磁盘空间
-* 以太网卡
+* INTEL I3 or equivalent processor
+* 4GB RAM (follow OS recommendations)
+* 500 MB free disk space
+* 1G Ethernet card
 
-系统需要安装的辅助运行时软件
+Auxiliary runtime software that the system needs to install
 
-LECPServer目前是基于 JLean v2.2.x 版本开发，而JLean v2.2.x版本需要以下辅助运行时软件
+LECPServer is currently developed based on the JLean v2.2.x platform, and the JLean v2.2.x version requires the following auxiliary runtime software
 
-* Microsoft .NET Framework 4.6.1或以上
+* Microsoft .NET Framework 4.6.1 or above
 * Visual C++ Redistributable Packages for Visual Studio 2013
 
 > Microsoft .NET Framework 4.6.1 https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net461-web-installer
-
 > Visual C++ Redistributable Packages for Visual Studio 2013 https://www.microsoft.com/zh-cn/download/details.aspx?id=40784
 
-## 使用方法
-1. 解压zip文件到文件夹
-2. 双击启动 LECPServer.exe 即可
+## Instructions
+1. Extract the zip file to a folder
+2. Double-click to start LECPServer.exe
 
-## 用户界面
+## User Interface
 
 ![ofins](./imgs/ofins_04.jpg)
 ![webapi](./imgs/webapi.jpg)
 
-## 功能特性
+## Features
 
-* 简洁明了的图形操作界面
-* WebAPI读写支持
-* 海量PLC通讯协议支持
-* 高效负载
-* 国际化 [查看已可选的语言](#国际化)
-* HTTP Debugger 工具
-* 系统日志
+* Simple and clear GUI
+* WebAPI read and write support
+* Massive PLC communication protocol support
+* Efficient load
+* Internationalization [view selected languages](#internationalization)
+* HTTP Debugger tool
+* System log
 
 
-## 性能测试
+## Performance Testing
 
-测试设备
-1. CPU INTEL Core I7-1065G7 1.30Ghz处理器
-2. 16GB DDR4 内存
-3. SSD M2 磁盘
-4. Windows10 专业版 1909 64bit 操作系统
-5. 施耐德 TM200CE24R PLC
+Test Equipment
+1. CPU INTEL Core I7-1065G7 1.30Ghz processor
+2. 16GB DDR4 RAM
+3. SSD M2 disk
+4. Windows10 Professional 1909 64bit Operating System
+5. Schneider TM200CE24R PLC
 
-测试方法
-1. 给PLC设置一个BOOL点位C0000和一个WORD点位H0000，开启50个读线程和50个写线程，运行 plc_read_node 和 plc_write_node 命令，测试两个命令的响应速度
-2. 给PLC设置一个BOOL点位C0000和一个WORD点位H0000，开启50个读线程和50个写线程，运行 plc_read_nodes 和 plc_write_nodes 命令，测试两个命令的响应速度
+testing method
+1. Set a BOOL point C0000 and a WORD point H0000 for the PLC, open 50 read threads and 50 write threads, run the plc_read_node and plc_write_node commands, and test the response speed of the two commands
+2. Set a BOOL point C0000 and a WORD point H0000 for the PLC, open 50 read threads and 50 write threads, run the plc_read_nodes and plc_write_nodes commands, and test the response speed of the two commands
 
-结论，第一组测试结果，50个读线程和50个写线程，针对单个线程的读写返回时间在10ms-13ms，第二组测试结果，50个读线程和50个写线程，针对单个读写返回时间在20ms-24ms
-
+Conclusion, the first set of test results, 50 read threads and 50 write threads, the read and write return time for a single thread is 10ms-13ms, the second set of test results, 50 read threads and 50 write threads, for a single read Write return time is 20ms-24ms
 
 ![debugger6](./imgs/debug_06.gif)
 ![debugger7](./imgs/debug_07.gif)
 
 
-## 国际化
-欢迎大家将 LECPServer 翻译成更多的语言版本。
+## internationalization
+Thanks to translate LECPServer into more languages.
 
 
-| Key | 语言 |状态|
+| Key | language | status |
 |----- |------|----|
 | cn | 简体中文 | ✔️ @xeden3
 | en| English | ✔️ @xeden3
 | jp | 日本語 | @xeden3
 
-## 关于JLean授权
+## About JLean authorization
 
-LECPServer 为免费开源软件，所有功能均免费，其内核为JLean，内核需要遵循JLean的授权模式。 针对LECPServer的功能，如果只针对两个PLC，则完全可以免费使用，但若需要两个以上的PLC进行链路，则需要给JLean进行授权。
+LECPServer is free and open source software, all functions are free, its kernel is JLean, and the kernel needs to follow the JLean authorization model. For the function of LECPServer, if it is only for two PLCs, it can be used for free, but if more than two PLCs are required for linking, JLean needs to be authorized.
 
-JLean的网站 http://www.jlean.org
+JLean website http://www.jlean.org
 
